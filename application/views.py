@@ -1,6 +1,5 @@
 from application import app, charges_utils, charge_utils
 from flask import request
-#import charges_utils, charge_utils
 
 @app.route("/health")
 def check_status():
