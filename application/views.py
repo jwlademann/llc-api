@@ -1,5 +1,6 @@
-from application import app
+from application import app, charges_utils, charge_utils
 from flask import request
+#import charges_utils, charge_utils
 
 @app.route("/health")
 def check_status():
@@ -14,9 +15,9 @@ def hello(version):
 @app.route("/<version>/charges", methods=["GET", "POST"])
 def charges(version):
     if request.method == 'GET':
-        return 'API Version request: ' + version + '. List of charges.'
+        return charges_utils.get_charges(version)
     elif request.method == 'POST':
-        return 'API Version request: ' + version + '. Create new charge.'
+        return charges_utils.post_charge(version)
 
 # curl localhost:5001/v0.1/charges/12345
 # curl -X PUT localhost:5001/c0.1/charges/12345
@@ -24,8 +25,8 @@ def charges(version):
 @app.route("/<version>/charges/<id>", methods=["GET", "PUT", "DELETE"])
 def charge(version, id):
     if request.method == 'GET':
-        return 'API Version request: ' + version + '. Charge ID: ' + id
+        return charge_utils.get_charge(version, id)
     elif request.method == 'PUT':
-        return 'API Version request: ' + version + '. Charge ID: ' + id + ' updated.'
+        return charge_utils.put_charge(version, id)
     elif request.method == 'DELETE':
-        return 'API Version request: ' + version + '. Charge ID: ' + id + ' deleted.'
+        return charge_utils.delete_charge(version, id)
