@@ -5,10 +5,6 @@ from flask import request
 def check_status():
     return "LLC API running"
 
-@app.route("/<version>/hello", methods=["GET"])
-def hello(version):
-    return 'Hello ' + version
-
 # curl localhost:5001/v0.1/charges
 # curl -X POST localhost:5001/c0.1/charges
 @app.route("/<version>/charges", methods=["GET", "POST"])
