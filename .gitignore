@@ -197,3 +197,10 @@ pip-selfcheck.json
 
 ### Vagrant ###
 .vagrant/
+
+### Eclipse ###
+.project
+.pydevproject
+
+### JUnit test results ###
+TEST-*.xml
