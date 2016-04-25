@@ -8,7 +8,7 @@ def check_status():
 
 
 # curl localhost:5001/v0.1/charges
-# curl -X POST localhost:5001/c0.1/charges
+# curl -X POST localhost:5001/v0.1/charges
 @app.route("/<version>/charges", methods=["GET", "POST"])
 def charges(version):
     if request.method == 'GET':
@@ -18,8 +18,8 @@ def charges(version):
 
 
 # curl localhost:5001/v0.1/charges/12345
-# curl -X PUT localhost:5001/c0.1/charges/12345
-# curl -X DELETE localhost:5001/c0.1/charges/12345
+# curl -X PUT localhost:5001/v0.1/charges/12345
+# curl -X DELETE localhost:5001/v0.1/charges/12345
 @app.route("/<version>/charges/<id>", methods=["GET", "PUT", "DELETE"])
 def charge(version, id):
     if request.method == 'GET':
