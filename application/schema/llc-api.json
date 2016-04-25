@@ -72,13 +72,13 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "A specific deed is returned",
+                        "description": "A specific Local Land Charge is returned",
                         "schema": {
                             "$ref": "#/definitions/Charge"
                         }
                     },
                     "404": {
-                        "description": "Deed not found",
+                        "description": "Local Land Charge not found",
                         "schema": {
                             "$ref": "#/definitions/Error"
                         }
