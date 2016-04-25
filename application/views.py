@@ -1,6 +1,5 @@
 from application import app, charges_utils, charge_utils
 from flask import request, redirect, url_for
-import json
 import requests
 
 @app.route("/health")
@@ -16,6 +15,7 @@ def charges(version):
         return charges_utils.get_charges(version)
     elif request.method == 'POST':
         return charges_utils.post_charge(version)
+
 
 # curl localhost:5001/v0.1/charges/12345
 # curl -X PUT localhost:5001/c0.1/charges/12345
