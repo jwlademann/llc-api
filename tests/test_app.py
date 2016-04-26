@@ -9,4 +9,4 @@ class TestRoutes(unittest.TestCase):
         self.app = app.test_client()
 
     def test_health(self):
-        self.assertEqual((self.app.get('/')).status, '200 OK')
+        self.assertEqual((self.app.get('/health')).status, '200 OK')
