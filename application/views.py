@@ -2,6 +2,7 @@ from application import app, charges_utils, charge_utils
 from flask import request, redirect, url_for
 import requests
 
+@app.route("/")
 @app.route("/health")
 def check_status():
     return "LLC API running"
