@@ -1,8 +1,5 @@
-def get_charge(version, id):
-    return 'API Version request: ' + version + '. Charge ID: ' + id
+def update_charge():
+    return 'Charge updated'
 
-def put_charge(version, id):
-    return 'API Version request: ' + version + '. Charge ID: ' + id + ' updated.'
-
-def delete_charge(version, id):
-    return 'API Version request: ' + version + '. Charge ID: ' + id + ' deleted.'
+def create_charge():
+    return 'Charge created.'
