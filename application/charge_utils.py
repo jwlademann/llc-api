@@ -1,12 +1,13 @@
 from application.validators import ChargeSchema, FurtherInfoSchema, AuthoritySchema, ProvisionSchema
 from application import app
 import requests
+from flask import jsonify
 
 register_details = {
-    "local-land-charge": {"validator": ChargeSchema, "url_parameter": "local-land-charge"},
-    "further-information": {"validator": FurtherInfoSchema, "url_parameter": "further-information"},
-    "originating-authority": {"validator": AuthoritySchema, "url_parameter": "originating-authority"},
-    "statutory-provision": {"validator": ProvisionSchema, "url_parameter": "statutory-provision"}
+    "local-land-charge": {"validator": ChargeSchema(), "url_parameter": "local-land-charge"},
+    "lc-place-of-inspection": {"validator": FurtherInfoSchema(), "url_parameter": "lc-place-of-inspection"},
+    "llc-registering-authority": {"validator": AuthoritySchema(), "url_parameter": "llc-registering-authority"},
+    "statutory-provision": {"validator": ProvisionSchema(), "url_parameter": "statutory-provision"}
 }
 
 def update_charge():
@@ -14,13 +15,17 @@ def update_charge():
 
 def create_charge(request):
     subdomain = get_subdomain(request)
-    result = register_details[subdomain]['validator'].loads(request.get_json())
-    if result.errors:
-        return result.errors
+    if subdomain in register_details:
+        result = register_details[subdomain]['validator'].load(request.get_json())
+        if result.errors:
+            return jsonify(result.errors)
+        else:
+            requests.post(app.config['LLC_REGISTER_URL'] + "/" +
+                          register_details[subdomain]['url_parameter'] + "/items",
+                          data=request.get_json())
+        return 'Charge created'
     else:
-        requests.post(app.config['LLC_REGISTER_URL'] + "/" +
-                      register_details[subdomain]['url_parameter'] + "/items",
-                      data=request.get_json())
+        return 'invalid sub-domain'
 
 def get_subdomain(request):
     return request.headers['Host'].split('.')[0]
