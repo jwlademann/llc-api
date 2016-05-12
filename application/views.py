@@ -1,4 +1,4 @@
-from application import app, charges_utils, charge_utils
+from application import app, charge_utils
 from flask import request, redirect, url_for
 import requests
 
@@ -13,5 +13,4 @@ def charges():
     if request.method == 'PUT':
         return charge_utils.update_charge()
     elif request.method == 'POST':
-        return charge_utils.create_charge()
-
+        return charge_utils.create_charge(request)
