@@ -5,7 +5,7 @@ from flask import jsonify
 
 register_details = {
     "local-land-charge": {"validator": ChargeSchema(), "url_parameter": "local-land-charge"},
-    "lc-place-of-inspection": {"validator": FurtherInfoSchema(), "url_parameter": "lc-place-of-inspection"},
+    "llc-place-of-inspection": {"validator": PlaceOfInspectionSchema(), "url_parameter": "llc-place-of-inspection"},
     "llc-registering-authority": {"validator": AuthoritySchema(), "url_parameter": "llc-registering-authority"},
     "statutory-provision": {"validator": ProvisionSchema(), "url_parameter": "statutory-provision"}
 }
@@ -20,12 +20,17 @@ def create_charge(request):
         if result.errors:
             return jsonify(result.errors)
         else:
+            json_in = request.get_json()
+            json_new = remove_excess_fields(json_in)
             requests.post(app.config['LLC_REGISTER_URL'] + "/" +
                           register_details[subdomain]['url_parameter'] + "/items",
-                          data=request.get_json())
+                          data=json_new)
         return 'Charge created'
     else:
         return 'invalid sub-domain'
 
 def get_subdomain(request):
     return request.headers['Host'].split('.')[0]
+
+def remove_excess_fields(json_in):
+    return json_in
