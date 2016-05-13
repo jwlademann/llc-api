@@ -1,6 +1,5 @@
 from application import app, charge_utils
-from flask import request, redirect, url_for
-import requests
+from flask import request
 
 @app.route("/")
 @app.route("/health")
@@ -10,7 +9,4 @@ def check_status():
 
 @app.route("/items", methods=["PUT", "POST"])
 def charges():
-    if request.method == 'PUT':
-        return charge_utils.update_charge()
-    elif request.method == 'POST':
-        return charge_utils.create_charge(request)
+    return charge_utils.create_charge(request)
