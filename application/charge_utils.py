@@ -5,6 +5,7 @@ from application import app
 from flask import jsonify
 from jsonschema import Draft4Validator
 import requests
+import copy
 
 register_details = {
     "local-land-charge": {"validator": local_land_charge_schema,
@@ -22,7 +23,10 @@ def create_charge(request):
     subdomain = get_subdomain(request)
     if subdomain in register_details:
         json_in = request.get_json()
-        schema = register_details[subdomain]['validator']
+        schema = copy.deepcopy(register_details[subdomain]['validator'])
+        if request.method == 'PUT':
+            schema['properties'][register_details[subdomain]['url_parameter']] = {"type": "string"}
+            schema['required'].append(register_details[subdomain]['url_parameter'])
         validator = Draft4Validator(schema)
         errors = []
         for error in validator.iter_errors(json_in):
@@ -35,10 +39,11 @@ def create_charge(request):
             json_new = remove_excess_fields(json_in, subdomain)
             register_url = (app.config['LLC_REGISTER_URL'] + "/" +
                             register_details[subdomain]['url_parameter'] + "/items")
+            # return register_url
             if request.method == "POST":
-                response = requests.post(register_url, data=json_new)
+                response = requests.post(register_url, json=json_new)
             else:
-                response = requests.put(register_url, data=json_new)
+                response = requests.put(register_url, json=json_new)
             response.raise_for_status()
 
             return 'Charge created', 201

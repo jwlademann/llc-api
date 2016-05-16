@@ -7,6 +7,6 @@ def check_status():
     return "LLC API running"
 
 
-@app.route("/items", methods=["PUT", "POST"])
+@app.route("/records", methods=["PUT", "POST"])
 def charges():
     return charge_utils.create_charge(request)
