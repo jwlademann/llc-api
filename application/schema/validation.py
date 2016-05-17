@@ -21,10 +21,10 @@ local_land_charge_schema = {
             "type": "string"
         },
         "creation-date": {
-            "type": "date"
+            "type": "string"
         },
         "expiration-date": {
-            "type": "date"
+            "type": "string"
         },
         "instrument": {
             "type": "string"

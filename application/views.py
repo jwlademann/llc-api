@@ -6,11 +6,16 @@ from flask import request
 def check_status():
     return "LLC API running"
 
-
-@app.route("/records", methods=["POST"])
+@app.route("/records", methods=["GET", "POST"])
 def create_charge():
-    return charge_utils.create_charge(request)
+    if request.method == "GET":
+        return charge_utils.get_charge_records(request)
+    else:
+        return charge_utils.create_charge(request)
 
-@app.route("/record/<primary_id>", methods=["PUT"])
+@app.route("/record/<primary_id>", methods=["GET", "PUT"])
 def update_charge(primary_id):
-    return charge_utils.create_charge(request, primary_id)
+    if request.method == "GET":
+        return charge_utils.get_charge_record(request, primary_id)
+    else:
+        return charge_utils.create_charge(request, primary_id)
