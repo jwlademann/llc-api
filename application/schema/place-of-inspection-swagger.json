@@ -1,0 +1,120 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "title": "Local Land Charge API",
+        "description": "Land Registry Local Land Charge API",
+        "version": "0.0.1"
+    },
+    "host": "llc-place-of-inspection",
+    "schemes": [
+        "https"
+    ],
+    "basePath": "/api.landregistry.gov.uk/",
+    "produces": [
+        "application/json"
+    ],
+    "paths": {
+        "/records/": {
+            "post": {
+                "summary": "Add a new Place of Inspection",
+                "operationId": "addPlaceOfInspection",
+                "description": "Add a Place of Inspection to the Place of Inspection Register",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "text/plain"
+                ],
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/Place-of-Inspection"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "URL to the GET endpoint for the place of inspection is returned on successful creation.\n",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request due to invalid schema. Response will include 1 or more schema errors\n",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/record/{primary_id}": {
+            "get": {
+                "summary": "Get the Place of Inspection record",
+                "description": "The Place of Inspection endpoint returns details of a specific Place of Inspection record based on the unique primary id.\n",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "primary_id",
+                        "in": "path",
+                        "description": "Unique reference of the local land charge record.",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "tags": [
+                    "PlaceOfInsepction"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "A specific Place of Inspection is returned",
+                        "schema": {
+                            "$ref": "#/definitions/Place-of-Inspection"
+                        }
+                    },
+                    "404": {
+                        "description": "Place of Inspection not found",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "Place-of-Inspection": {
+            "type": "object",
+            "required": [
+                "location"
+            ],
+            "properties": {
+                "location": {
+                    "description": "Description (Address) of the place of inspection.",
+                    "type": "string"
+                },
+                "archived": {
+                    "description": "Boolean indicator to indicate whether the record has been archived",
+                    "type": "boolean"
+                }
+            }
+        },
+        "Error": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer",
+                    "format": "int32"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}
