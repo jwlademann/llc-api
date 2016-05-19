@@ -40,6 +40,9 @@ local_land_charge_schema = {
         },
         "inspection-reference": {
             "type": "string"
+        },
+        "archived": {
+            "type": "boolean"
         }
     },
     "required": ["provision", "charge-type", "description", "geometry", "originating-authority"]
@@ -51,6 +54,9 @@ llc_place_of_inspection_schema = {
     "properties": {
         "location": {
             "type": "string"
+        },
+        "archived": {
+            "type": "boolean"
         }
     },
     "required": ["location"]
@@ -62,6 +68,9 @@ statutory_provision_schema = {
     "properties": {
         "description": {
             "type": "string"
+        },
+        "archived": {
+            "type": "boolean"
         }
     },
     "required": ["description"]
@@ -73,6 +82,9 @@ llc_registering_authority_schema = {
     "properties": {
         "name": {
             "type": "string"
+        },
+        "archived": {
+            "type": "boolean"
         }
     },
     "required": ["name"]
