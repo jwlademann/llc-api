@@ -25,7 +25,6 @@ class TestChargeUtils(unittest.TestCase):
         sub_domain = "invalid"
         request_method = 'POST'
         result = charge_utils.validate_json(request_json, sub_domain, request_method)
-        self.assertIsNone(result['valid_json'])
         self.assertEqual(result['errors'][0], "invalid sub-domain")
 
     def test_validate_json_missing_field(self):
@@ -98,17 +97,8 @@ class TestChargeUtils(unittest.TestCase):
         sub_domain = "local-land-charge"
         request_method = 'POST'
         result = charge_utils.validate_json(request_json, sub_domain, request_method)
-        self.assertEqual(len(result['errors']), 0)
-        expected_json = {"charge-type": "test",
-                         "provision": "test",
-                         "description": "test",
-                         "originating-authority": "test",
-                         "geometry": {"crs":
-                                          {"properties": {"name": "EPSG:27700"}, "type": "name"},
-                                      "coordinates": [[[241959.0, 52874.0], [257661.0, 52874.0],
-                                                       [257661.0, 62362.0], [241959.0, 62362.0],
-                                                       [241959.0, 52874.0]]], "type": "Polygon"}}
-        self.assertEqual(sorted(result['valid_json']), sorted(expected_json))
+        self.assertEqual(result['errors'][0],
+                         "Additional properties are not allowed ('fruit' was unexpected)")
 
     def test_validate_json_valid_json(self):
         request_json = {"charge-type": "test",
@@ -123,16 +113,6 @@ class TestChargeUtils(unittest.TestCase):
         request_method = 'POST'
         result = charge_utils.validate_json(request_json, sub_domain, request_method)
         self.assertEqual(len(result['errors']), 0)
-        expected_json = {"charge-type": "test",
-                         "provision": "test",
-                         "description": "test",
-                         "originating-authority": "test",
-                         "geometry": {"crs":
-                                          {"properties": {"name": "EPSG:27700"}, "type": "name"},
-                                      "coordinates": [[[241959.0, 52874.0], [257661.0, 52874.0],
-                                                       [257661.0, 62362.0], [241959.0, 62362.0],
-                                                       [241959.0, 52874.0]]], "type": "Polygon"}}
-        self.assertEqual(sorted(result['valid_json']), sorted(expected_json))
 
     def test_process_update_request_invalid_sub_domain(self):
         host_url = "invalid.landregistry.gov.uk"

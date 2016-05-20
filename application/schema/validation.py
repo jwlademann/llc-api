@@ -45,6 +45,7 @@ local_land_charge_schema = {
             "type": "boolean"
         }
     },
+    "additionalProperties": False,
     "required": ["provision", "charge-type", "description", "geometry", "originating-authority"]
 }
 
@@ -59,6 +60,7 @@ llc_place_of_inspection_schema = {
             "type": "boolean"
         }
     },
+    "additionalProperties": False,
     "required": ["location"]
 }
 
@@ -73,6 +75,7 @@ statutory_provision_schema = {
             "type": "boolean"
         }
     },
+    "additionalProperties": False,
     "required": ["description"]
 }
 
@@ -87,5 +90,6 @@ llc_registering_authority_schema = {
             "type": "boolean"
         }
     },
+    "additionalProperties": False,
     "required": ["name"]
 }

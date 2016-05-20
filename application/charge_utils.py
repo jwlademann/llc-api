@@ -74,10 +74,9 @@ def validate_json(request_json, sub_domain, request_method, primary_id=None):
                 pattern = "{0}"
                 errors.append(pattern.format(error.message))
                 # Remove any fields not defined in the schema from the submitted JSON
-        json_new = remove_excess_fields(request_json, schema)
-        return_value = {"valid_json": json_new, "errors": errors}
+        return_value = {"errors": errors}
     else:
-        return_value = {"valid_json": None, "errors": ['invalid sub-domain']}
+        return_value = {"errors": ['invalid sub-domain']}
     return return_value
 
 def process_update_request(host_url, request_method, request_json, primary_id=None):
@@ -117,12 +116,3 @@ def process_update_request(host_url, request_method, request_json, primary_id=No
         return_value = (json.dumps({"errors": ['invalid sub-domain']}), 400,
                         {"Content-Type": "application/json"})
     return return_value
-
-def remove_excess_fields(json_in, schema):
-    """remove any fields from the incoming json that are not in the spec"""
-    json_new = {}
-    for key in json_in:
-        if key in schema['properties'].keys():
-            json_new[key] = json_in[key]
-
-    return json_new

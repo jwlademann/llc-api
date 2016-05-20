@@ -45,7 +45,7 @@ def create_charge():
         else:
             return_value = charge_utils.process_update_request(request.headers['Host'],
                                                                request.method,
-                                                               result['valid_json'])
+                                                               request.get_json())
     else:
         return_value = (json.dumps({"errors": ['invalid sub-domain']}), 400,
                         {"Content-Type": "application/json"})
@@ -67,7 +67,7 @@ def update_charge(primary_id):
         else:
             return_value = charge_utils.process_update_request(request.headers['Host'],
                                                                request.method,
-                                                               result['valid_json'],
+                                                               request.get_json(),
                                                                primary_id)
     else:
         return_value = (json.dumps({"errors": ['invalid sub-domain']}), 400,
