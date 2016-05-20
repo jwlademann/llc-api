@@ -1,6 +1,6 @@
-from application import app, charges_utils, charge_utils
-from flask import request, redirect, url_for
-import requests
+from application import app, charge_utils
+from flask import request
+import json
 
 @app.route("/")
 @app.route("/health")
@@ -8,34 +8,69 @@ def check_status():
     return "LLC API running"
 
 
-# curl localhost:5001/v0.1/charges
-# curl -X POST localhost:5001/v0.1/charges
-@app.route("/<version>/charges", methods=["GET", "POST"])
-def charges(version):
-    if request.method == 'GET':
-        return charges_utils.get_charges(version)
-    elif request.method == 'POST':
-        return charges_utils.post_charge(version)
+@app.route("/records", methods=["GET"])
+def get_charges():
+    sub_domain = request.headers['Host'].split('.')[0]
+    if sub_domain in charge_utils.register_details:
+        return_value = charge_utils.process_get_request(request.headers['Host'])
+    else:
+        return_value = (json.dumps({"errors": ['invalid sub-domain']}), 400,
+                        {"Content-Type": "application/json"})
+
+    return return_value
 
 
-# curl localhost:5001/v0.1/charges/12345
-# curl -X PUT localhost:5001/v0.1/charges/12345
-# curl -X DELETE localhost:5001/v0.1/charges/12345
-@app.route("/<version>/charges/<id>", methods=["GET", "PUT", "DELETE"])
-def charge(version, id):
-    if request.method == 'GET':
-        return charge_utils.get_charge(version, id)
-    elif request.method == 'PUT':
-        return charge_utils.put_charge(version, id)
-    elif request.method == 'DELETE':
-        return charge_utils.delete_charge(version, id)
+@app.route("/record/<primary_id>", methods=["GET"])
+def get_charge(primary_id):
+    sub_domain = request.headers['Host'].split('.')[0]
+    if sub_domain in charge_utils.register_details:
+        return_value = charge_utils.process_get_request(request.headers['Host'], primary_id)
+    else:
+        return_value = (json.dumps({"errors": ['invalid sub-domain']}), 400,
+                        {"Content-Type": "application/json"})
+
+    return return_value
 
 
-@app.route("/database", methods=['POST'])
-def db_test():
-    return get_database_response(request.json)
+@app.route("/records", methods=["POST"])
+def create_charge():
+    sub_domain = request.headers['Host'].split('.')[0]
+    if sub_domain in charge_utils.register_details:
+        result = charge_utils.validate_json(request.get_json(), sub_domain, request.method)
+        if result['errors']:
+            # If there are errors add array to JSON and return
+            errors = {"errors": result['errors']}
+            return_value = (json.dumps(errors, sort_keys=True), 400,
+                            {"Content-Type": "application/json"})
+        else:
+            return_value = charge_utils.process_update_request(request.headers['Host'],
+                                                               request.method,
+                                                               request.get_json())
+    else:
+        return_value = (json.dumps({"errors": ['invalid sub-domain']}), 400,
+                        {"Content-Type": "application/json"})
+
+    return return_value
 
 
-def get_database_response(test_json):
-    r = requests.post('http://llc-register:5002/database', json=test_json)
-    return r.text
+@app.route("/record/<primary_id>", methods=["PUT"])
+def update_charge(primary_id):
+    sub_domain = request.headers['Host'].split('.')[0]
+    if sub_domain in charge_utils.register_details:
+        result = charge_utils.validate_json(request.get_json(), sub_domain, request.method,
+                                            primary_id)
+        if result['errors']:
+            # If there are errors add array to JSON and return
+            errors = {"errors": result['errors']}
+            return_value = (json.dumps(errors, sort_keys=True), 400,
+                            {"Content-Type": "application/json"})
+        else:
+            return_value = charge_utils.process_update_request(request.headers['Host'],
+                                                               request.method,
+                                                               request.get_json(),
+                                                               primary_id)
+    else:
+        return_value = (json.dumps({"errors": ['invalid sub-domain']}), 400,
+                        {"Content-Type": "application/json"})
+
+    return return_value
