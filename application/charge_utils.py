@@ -1,22 +1,25 @@
-from application.schema.validation import (local_land_charge_schema, statutory_provision_schema,
-                                           llc_place_of_inspection_schema,
-                                           llc_registering_authority_schema)
 from application import app
 from flask import abort
 from jsonschema import Draft4Validator
+from jsonschema.validators import validator_for
 import requests
 import copy
 import re
+import os
 import json
 
 register_details = {
-    "local-land-charge": {"validator": local_land_charge_schema,
+    "local-land-charge": {"filename": "local-land-charge-swagger.json",
+                          "definition_name": "Local-Land-Charge",
                           "register_name": "local-land-charge"},
-    "llc-place-of-inspection": {"validator": llc_place_of_inspection_schema,
+    "llc-place-of-inspection": {"filename": "place-of-inspection-swagger.json",
+                                "definition_name": "Place-of-Inspection",
                                 "register_name": "llc-place-of-inspection"},
-    "llc-registering-authority": {"validator": llc_registering_authority_schema,
+    "llc-registering-authority": {"filename": "registering-authority-swagger.json",
+                                  "definition_name": "Registering-Authority",
                                   "register_name": "llc-registering-authority"},
-    "statutory-provision": {"validator": statutory_provision_schema,
+    "statutory-provision": {"filename": "statutory-provision-swagger.json",
+                            "definition_name": "Statutory-Provision",
                             "register_name": "statutory-provision"}
 }
 
@@ -33,7 +36,67 @@ def _format_error_messages(error, sub_domain):
     return error_message
 
 
+def call_once_only(func):
+    def decorated(*args, **kwargs):
+        try:
+            return decorated._once_result
+        except AttributeError:
+            decorated._once_result = func(*args, **kwargs)
+            return decorated._once_result
+    return decorated
+
+
+def validate_helper(json_to_validate, sub_domain, request_method, primary_id=None):
+    error_message = ""
+    validator = _create_llc_validator(sub_domain)
+    error_list = sorted(validator.iter_errors(json_to_validate),
+                        key=str, reverse=True)
+
+    for count, error in enumerate(error_list, start=1):
+        error_message += "Problem %s:\n\n%s\n\n" % (count, str(error))
+
+    return len(error_list), error_message
+
+
+@call_once_only
+def get_swagger_file(sub_domain):
+    return load_json_file(os.getcwd() +
+                                  "/application/schema/%s" % register_details[sub_domain]['filename'])
+
+def load_json_schema(sub_domain):
+    swagger = get_swagger_file(sub_domain)
+
+    definitions = swagger["definitions"]
+
+    record_definition = definitions[register_details[sub_domain]['definition_name']]
+
+    record = {
+        "definitions": definitions,
+        "properties": record_definition["properties"],
+        "required": record_definition["required"],
+        "type": "object",
+        "additionalProperties": False
+    }
+
+    return record
+
+
+def _create_llc_validator(sub_domain):
+    schema = load_json_schema()
+    validator = validator_for(schema)
+    validator.check_schema(schema)
+    return validator(schema)
+
+
+def load_json_file(file_path):
+    with open(file_path, 'rt') as file:
+        json_data = json.load(file)
+
+    return json_data
+
+
 def process_get_request(host_url, primary_id=None, resolve='0'):
+
     sub_domain = host_url.split('.')[0]
     if sub_domain in register_details:
         try:
@@ -68,7 +131,8 @@ def process_get_request(host_url, primary_id=None, resolve='0'):
 def validate_json(request_json, sub_domain, request_method, primary_id=None):
     if sub_domain in register_details:
         # Make a copy of the schema so any changes aren't persisted
-        schema = copy.deepcopy(register_details[sub_domain]['validator'])
+        schema = load_json_schema(sub_domain)
+
         if request_method == 'PUT':
             # If it's a PUT request consider it an update. This requires the primary ID value to
             # be specified in the JSON. This must match the vale provided in the URL endpoint so
@@ -98,6 +162,7 @@ def validate_json(request_json, sub_domain, request_method, primary_id=None):
                     path.append(element)
             errors.append((": ".join(list(filter(None, [".".join(path), error_message])))))
         return_value = {"errors": sorted(errors)}
+
     else:
         return_value = {"errors": ['invalid sub-domain']}
     return return_value
