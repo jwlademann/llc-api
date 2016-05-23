@@ -14,9 +14,9 @@ register_details = {
                           "register_name": "local-land-charge"},
     "llc-place-of-inspection": {"validator": llc_place_of_inspection_schema,
                                 "register_name": "llc-place-of-inspection"},
-    "llc-registering-authority": {"validator": statutory_provision_schema,
+    "llc-registering-authority": {"validator": llc_registering_authority_schema,
                                   "register_name": "llc-registering-authority"},
-    "statutory-provision": {"validator": llc_registering_authority_schema,
+    "statutory-provision": {"validator": statutory_provision_schema,
                             "register_name": "statutory-provision"}
 }
 
