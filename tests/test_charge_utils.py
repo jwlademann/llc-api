@@ -52,6 +52,21 @@ class TestChargeUtils(unittest.TestCase):
         result = charge_utils.validate_json(request_json, sub_domain, request_method, primary_id)
         self.assertEqual(result['errors'][0], "'local-land-charge' is a required property")
 
+    def test_validate_json_missing_place_of_inspection(self):
+        request_json = {"charge-type": "test",
+                        "provision": "test",
+                        "description": "test",
+                        "originating-authority": "test",
+                        "inspection-reference": "test",
+                        "geometry": {"crs": {"properties": {"name": "EPSG:27700"}, "type": "name"},
+                                     "coordinates": [[[241959.0, 52874.0], [257661.0, 52874.0],
+                                                      [257661.0, 62362.0], [241959.0, 62362.0],
+                                                      [241959.0, 52874.0]]], "type": "Polygon"}}
+        sub_domain = "local-land-charge"
+        request_method = 'POST'
+        result = charge_utils.validate_json(request_json, sub_domain, request_method)
+        self.assertEqual(result['errors'][0], "'place-of-inspection' is a required property")
+
     def test_validate_json_invalid_field_type(self):
         request_json = {"local-land-charge": 1,
                         "charge-type": "test",
