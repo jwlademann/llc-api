@@ -21,6 +21,17 @@ register_details = {
 }
 
 
+def _format_error_messages(error, sub_domain):
+    error_message = error.message
+    # Format error message for empty string regex to be more user friendly
+    if " does not match '\\\\S+'" in error.message:
+        error_message = "must not be blank"
+    # For primary key validation remove start/end of line regex characters from error message,
+    # for clarity
+    if register_details[sub_domain]['register_name'] in error.path:
+        error_message = re.sub('\^(.*)\$', '\\1', error.message)
+    return error_message
+
 def process_get_request(host_url, primary_id=None):
     sub_domain = host_url.split('.')[0]
     if sub_domain in register_details:
@@ -72,14 +83,14 @@ def validate_json(request_json, sub_domain, request_method, primary_id=None):
         errors = []
         for error in validator.iter_errors(request_json):
             # Validate JSON against schema and format error messages
-            if error.path:
-                pattern = "{0}: {1}"
-                errors.append(pattern.format(error.path[0], re.sub('[\^\$]', '', error.message)))
-            else:
-                pattern = "{0}"
-                errors.append(pattern.format(error.message))
-                # Remove any fields not defined in the schema from the submitted JSON
-        return_value = {"errors": errors}
+            error_message = _format_error_messages(error, sub_domain)
+            # Get element names of erroring fields if required
+            path = []
+            for element in error.path:
+                if isinstance(element, str):
+                    path.append(element)
+            errors.append((": ".join(list(filter(None, [".".join(path), error_message])))))
+        return_value = {"errors": sorted(errors)}
     else:
         return_value = {"errors": ['invalid sub-domain']}
     return return_value
