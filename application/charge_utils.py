@@ -32,6 +32,7 @@ def _format_error_messages(error, sub_domain):
         error_message = re.sub('\^(.*)\$', '\\1', error.message)
     return error_message
 
+
 def process_get_request(host_url, primary_id=None):
     sub_domain = host_url.split('.')[0]
     if sub_domain in register_details:
@@ -46,7 +47,8 @@ def process_get_request(host_url, primary_id=None):
             response = requests.get(register_url)
 
             response.raise_for_status()
-            return_value = response.text, response.status_code, {'Content-Type': 'application/json'}
+            return_value = (response.text, response.status_code,
+                            {'Content-Type': 'application/json'})
         except requests.HTTPError as e:
             if e.response.text.startswith("<!DOCTYPE HTML"):
                 abort(500)
@@ -59,6 +61,7 @@ def process_get_request(host_url, primary_id=None):
         return_value = (json.dumps({"errors": ['invalid sub-domain']}), 400,
                         {"Content-Type": "application/json"})
     return return_value
+
 
 def validate_json(request_json, sub_domain, request_method, primary_id=None):
     if sub_domain in register_details:
@@ -76,7 +79,8 @@ def validate_json(request_json, sub_domain, request_method, primary_id=None):
             schema['required'].append(register_details[sub_domain]['register_name'])
 
         if sub_domain == "local-land-charge" and "inspection-reference" in request_json:
-            #if the incoming json has the inspection reference field then the place of inspection is also required
+            # if the incoming json has the inspection reference field then the place of inspection
+            # is also required
             schema['required'].append('place-of-inspection')
 
         validator = Draft4Validator(schema)
@@ -94,6 +98,7 @@ def validate_json(request_json, sub_domain, request_method, primary_id=None):
     else:
         return_value = {"errors": ['invalid sub-domain']}
     return return_value
+
 
 def process_update_request(host_url, request_method, request_json, primary_id=None):
     sub_domain = host_url.split('.')[0]
