@@ -115,6 +115,21 @@ class TestChargeUtils(unittest.TestCase):
         self.assertEqual(result['errors'][0],
                          "Additional properties are not allowed ('fruit' was unexpected)")
 
+    def test_validate_json_whitespace_value(self):
+        request_json = {"charge-type": "    ",
+                        "provision": "test",
+                        "description": "test",
+                        "originating-authority": "test",
+                        "geometry": {"crs": {"properties": {"name": "EPSG:27700"}, "type": "name"},
+                                     "coordinates": [[[241959.0, 52874.0], [257661.0, 52874.0],
+                                                      [257661.0, 62362.0], [241959.0, 62362.0],
+                                                      [241959.0, 52874.0]]], "type": "Polygon"}}
+        sub_domain = "local-land-charge"
+        request_method = 'POST'
+        primary_id = 1
+        result = charge_utils.validate_json(request_json, sub_domain, request_method)
+        self.assertEqual(result['errors'][0], "charge-type: must not be blank")
+
     def test_validate_json_valid_json(self):
         request_json = {"charge-type": "test",
                         "provision": "test",
