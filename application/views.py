@@ -2,6 +2,7 @@ from application import app, charge_utils
 from flask import request
 import json
 
+
 @app.route("/")
 @app.route("/health")
 def check_status():

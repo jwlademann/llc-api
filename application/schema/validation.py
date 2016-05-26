@@ -3,43 +3,55 @@ local_land_charge_schema = {
     "type": "object",
     "properties": {
         "provision": {
-            "type": "string"
+            "type": "string",
+            "pattern": "\S+"
         },
         "charge-type": {
-            "type": "string"
+            "type": "string",
+            "pattern": "\S+"
         },
         "description": {
-            "type": "string"
+            "type": "string",
+            "pattern": "\S+"
         },
         "geometry": {
             "type": "object"
         },
         "originating-authority": {
-            "type": "string"
+            "type": "string",
+            "pattern": "\S+"
         },
         "authority-charge-id": {
-            "type": "string"
+            "type": "string",
+            "pattern": "\S+"
         },
         "creation-date": {
-            "type": "string"
+            "type": "string",
+            "pattern": "\S+"
         },
         "expiration-date": {
-            "type": "string"
+            "type": "string",
+            "pattern": "\S+"
         },
         "instrument": {
-            "type": "string"
+            "type": "string",
+            "pattern": "\S+"
         },
         "migrating-authority": {
-            "type": "string"
+            "type": "string",
+            "pattern": "\S+"
         },
         "old-register-part": {
-            "type": "string"
+            "type": "string",
+            "pattern": "\S+"
         },
         "place-of-inspection": {
-            "type": "string"
+            "type": "string",
+            "pattern": "\S+"
         },
         "inspection-reference": {
-            "type": "string"
+            "type": "string",
+            "pattern": "\S+"
         },
         "archived": {
             "type": "boolean"
@@ -54,7 +66,8 @@ llc_place_of_inspection_schema = {
     "type": "object",
     "properties": {
         "location": {
-            "type": "string"
+            "type": "string",
+            "pattern": "\S+"
         },
         "archived": {
             "type": "boolean"
@@ -69,7 +82,8 @@ statutory_provision_schema = {
     "type": "object",
     "properties": {
         "description": {
-            "type": "string"
+            "type": "string",
+            "pattern": "\S+"
         },
         "archived": {
             "type": "boolean"
@@ -84,7 +98,8 @@ llc_registering_authority_schema = {
     "type": "object",
     "properties": {
         "name": {
-            "type": "string"
+            "type": "string",
+            "pattern": "\S+"
         },
         "archived": {
             "type": "boolean"

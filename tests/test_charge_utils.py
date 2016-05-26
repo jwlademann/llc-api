@@ -7,12 +7,14 @@ import requests
 import unittest
 import werkzeug
 
+
 class FakeResponse(requests.Response):
     def __init__(self, content='', status_code=200):
         super(FakeResponse, self).__init__()
         self._content = content
         self._content_consumed = True
         self.status_code = status_code
+
 
 class TestChargeUtils(unittest.TestCase):
 
@@ -114,6 +116,21 @@ class TestChargeUtils(unittest.TestCase):
         result = charge_utils.validate_json(request_json, sub_domain, request_method)
         self.assertEqual(result['errors'][0],
                          "Additional properties are not allowed ('fruit' was unexpected)")
+
+    def test_validate_json_whitespace_value(self):
+        request_json = {"charge-type": "    ",
+                        "provision": "test",
+                        "description": "test",
+                        "originating-authority": "test",
+                        "geometry": {"crs": {"properties": {"name": "EPSG:27700"}, "type": "name"},
+                                     "coordinates": [[[241959.0, 52874.0], [257661.0, 52874.0],
+                                                      [257661.0, 62362.0], [241959.0, 62362.0],
+                                                      [241959.0, 52874.0]]], "type": "Polygon"}}
+        sub_domain = "local-land-charge"
+        request_method = 'POST'
+        primary_id = 1
+        result = charge_utils.validate_json(request_json, sub_domain, request_method)
+        self.assertEqual(result['errors'][0], "charge-type: must not be blank")
 
     def test_validate_json_valid_json(self):
         request_json = {"charge-type": "test",
@@ -222,13 +239,14 @@ class TestChargeUtils(unittest.TestCase):
         primary_id = None
         result = charge_utils.process_update_request(host_url, request_method, request_json)
         self.assertEqual(result[1], 201)
-        self.assertEqual(json.loads(result[0])['record']['charge-type'], request_json['charge-type'])
+        self.assertEqual(json.loads(result[0])['record']['charge-type'],
+                         request_json['charge-type'])
         self.assertEqual(json.loads(result[0])['href'], host_url + "/record/48")
 
     @mock.patch('application.charge_utils.requests.put')
     def test_process_update_request_valid_put(self, mock_put):
         mock_put.return_value = FakeResponse(str.encode(json.dumps(post_response)),
-                                              status_code=201)
+                                             status_code=201)
         host_url = "local-land-charge.landregistry.gov.uk"
         request_method = 'PUT'
         request_json = {"local-land-charge": "48",
@@ -243,9 +261,11 @@ class TestChargeUtils(unittest.TestCase):
                                                       [241959.0, 52874.0]]], "type": "Polygon"}
                         }
         primary_id = '48'
-        result = charge_utils.process_update_request(host_url, request_method, request_json, primary_id=primary_id)
+        result = charge_utils.process_update_request(host_url, request_method, request_json,
+                                                     primary_id=primary_id)
         self.assertEqual(result[1], 201)
-        self.assertEqual(json.loads(result[0])['record']['charge-type'], request_json['charge-type'])
+        self.assertEqual(json.loads(result[0])['record']['charge-type'],
+                         request_json['charge-type'])
         self.assertEqual(json.loads(result[0])['href'], host_url + "/record/48")
 
     def test_process_get_request_invalid_sub_domain(self):
@@ -268,7 +288,7 @@ class TestChargeUtils(unittest.TestCase):
     def test_process_get_request_http_error(self, mock_get):
         mock_get.side_effect = requests.HTTPError()
         mock_get.side_effect.response = FakeResponse(str.encode("This is an error message"),
-                                                      status_code=404)
+                                                     status_code=404)
         host_url = "local-land-charge.landregistry.gov.uk"
         primary_id = None
         result = charge_utils.process_get_request(host_url)
@@ -278,7 +298,7 @@ class TestChargeUtils(unittest.TestCase):
     def test_process_get_request_http_error_html_content(self, mock_get):
         mock_get.side_effect = requests.HTTPError()
         mock_get.side_effect.response = FakeResponse(str.encode("<!DOCTYPE HTML"),
-                                                      status_code=404)
+                                                     status_code=404)
         host_url = "local-land-charge.landregistry.gov.uk"
         primary_id = None
         try:
@@ -290,7 +310,7 @@ class TestChargeUtils(unittest.TestCase):
     @mock.patch('application.charge_utils.requests.get')
     def test_process_get_request_valid_get(self, mock_get):
         mock_get.return_value = FakeResponse(str.encode(json.dumps(get_response_many)),
-                                              status_code=201)
+                                             status_code=201)
         host_url = "local-land-charge.landregistry.gov.uk"
         primary_id = None
         result = charge_utils.process_get_request(host_url)
@@ -300,7 +320,7 @@ class TestChargeUtils(unittest.TestCase):
     @mock.patch('application.charge_utils.requests.get')
     def test_process_get_request_valid_get_with_primary_id(self, mock_get):
         mock_get.return_value = FakeResponse(str.encode(json.dumps(get_response_one)),
-                                              status_code=201)
+                                             status_code=201)
         host_url = "local-land-charge.landregistry.gov.uk"
         primary_id = '3'
         result = charge_utils.process_get_request(host_url, primary_id=primary_id)
