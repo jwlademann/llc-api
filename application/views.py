@@ -6,7 +6,7 @@ import json
 @app.route("/")
 @app.route("/health")
 def check_status():
-    return "LLC API running"
+    return request.headers['Host'].split('.')[0] + " API running."
 
 
 @app.route("/records", methods=["GET"])
