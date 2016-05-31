@@ -22,36 +22,28 @@ local_land_charge_schema = {
             "pattern": "\S+"
         },
         "authority-charge-id": {
-            "type": "string",
-            "pattern": "\S+"
+            "type": "string"
         },
         "creation-date": {
-            "type": "string",
-            "pattern": "\S+"
+            "type": "string"
         },
         "expiration-date": {
-            "type": "string",
-            "pattern": "\S+"
+            "type": "string"
         },
         "instrument": {
-            "type": "string",
-            "pattern": "\S+"
+            "type": "string"
         },
         "migrating-authority": {
-            "type": "string",
-            "pattern": "\S+"
+            "type": "string"
         },
         "old-register-part": {
-            "type": "string",
-            "pattern": "\S+"
+            "type": "string"
         },
         "place-of-inspection": {
-            "type": "string",
-            "pattern": "\S+"
+            "type": "string"
         },
         "inspection-reference": {
-            "type": "string",
-            "pattern": "\S+"
+            "type": "string"
         },
         "archived": {
             "type": "boolean"
