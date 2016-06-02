@@ -324,13 +324,22 @@ class TestChargeUtils(unittest.TestCase):
 
     @mock.patch('application.charge_utils.requests.get')
     def test_process_get_request_valid_get_with_primary_id(self, mock_get):
-        mock_get.return_value = FakeResponse(str.encode(json.dumps(get_response_one)),
-                                             status_code=201)
+        mock_get.return_value = FakeResponse(str.encode(json.dumps(get_response_one)), status_code=201)
         host_url = "local-land-charge.landregistry.gov.uk"
         primary_id = '3'
         result = charge_utils.process_get_request(host_url, primary_id=primary_id)
         self.assertEqual(result[1], 201)
         self.assertEqual(json.loads(result[0])['charge-type'], "test")
+
+    @mock.patch('application.charge_utils.requests.get')
+    def test_get_request_resolve(self, mock_get):
+        mock_get.return_value = FakeResponse(str.encode(json.dumps(get_response_one)), status_code=201)
+        host_url = "local-land-charge.landregistry.gov.uk"
+        primary_id = '3'
+        result = charge_utils.process_get_request(host_url, primary_id=primary_id, resolve="1")
+        self.assertEqual(result[1], 201)
+        self.assertEqual(json.loads(result[0])['charge-type'], "test")
+
 
 
 post_response = {

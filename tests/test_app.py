@@ -206,6 +206,47 @@ class TestRoutes(unittest.TestCase):
         self.assertEqual(response_json['href'], "local-land-charge.my_url.gov.uk/record/48")
         self.assertEqual(response_json['record'], post_response)
 
+    @mock.patch('application.views.charge_utils.validate_json')
+    def test_create_charge_exception(self, mock_validate_json):
+        data = {"charge-type": "test",
+                "provision": "test",
+                "description": "test",
+                "originating-authority": "test",
+                "geometry": 123}
+        mock_validate_json.return_value = {"errors": ['geometry is not of type object']}
+
+        response = self.app.post('/records', data=json.dumps(data), headers={"Host": "local-land-charge.my_url.gov.uk"})
+        self.assertEqual(response.status_code, 400)
+        response_json = json.loads(response.data.decode(response.charset))
+        self.assertEqual(response_json['errors'][0], "geometry is not of type object")
+
+    @mock.patch('application.charge_utils.validate_json')
+    @mock.patch('application.charge_utils.process_update_request')
+    def test_create_charge_valid_geometry_string(self, mock_update_request, mock_validate_json):
+        data = {"charge-type": "test",
+                "provision": "test",
+                "description": "test",
+                "originating-authority": "test",
+                "geometry": '{"crs": {"properties": {"name": "EPSG:27700"}, "type": "name"}, '
+                            '"coordinates": [[[241959.0, 52874.0], [257661.0, 52874.0], [257661.0, 62362.0], '
+                            '[241959.0, 62362.0], [241959.0, 52874.0]]], "type": "Polygon"}'}
+        mock_validate_json.return_value = {"valid_json": data,
+                                           "errors": []}
+        mock_update_request.return_value = (
+            json.dumps({"href": "local-land-charge.my_url.gov.uk/record/" +
+                                post_response['local-land-charge'],
+                        "record": post_response}),
+            201, {"Content-Type": "application/json"}
+        )
+
+        response = self.app.post('/records', data=json.dumps(data),
+                                 headers={"Host": "local-land-charge.my_url.gov.uk",
+                                          "Content-Type": "application/json"})
+        self.assertEqual(response.status_code, 201)
+        response_json = json.loads(response.data.decode(response.charset))
+        self.assertEqual(response_json['href'], "local-land-charge.my_url.gov.uk/record/48")
+        self.assertEqual(response_json['record'], post_response)
+
 
 post_response = {
     "charge-type": "test",

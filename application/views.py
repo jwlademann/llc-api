@@ -1,7 +1,6 @@
 from application import app, charge_utils
 from flask import request
 import json
-from json import JSONDecodeError
 
 
 @app.route("/")
@@ -43,12 +42,9 @@ def create_charge():
             try:
                 geometry = json.loads(request.get_json()['geometry'])
                 request.get_json()['geometry'] = geometry
-            except JSONDecodeError as e:
-                app.logger.warn('Could not encode json: ' + str(e))
-                pass  # let validation handle errors returned to the user
-            except TypeError as e:
-
-                pass
+            except (json.JSONDecodeError, TypeError) as e:
+                app.logger.warn('Could not decode json: ' + str(e))
+                pass  # Geometry causing these errors will be caught by validation and returned to the user
         result = charge_utils.validate_json(request.get_json(), sub_domain, request.method)
         if result['errors']:
             # If there are errors add array to JSON and return
