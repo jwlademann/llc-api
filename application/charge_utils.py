@@ -83,6 +83,7 @@ def validate_json(request_json, sub_domain, request_method, primary_id=None):
         if sub_domain == "local-land-charge" and "inspection-reference" in request_json:
             # if the incoming json has the inspection reference field then the place of inspection
             # is also required
+            schema['properties']['place-of-inspection']['pattern'] = "\S+"
             schema['required'].append('place-of-inspection')
 
         validator = Draft4Validator(schema)
