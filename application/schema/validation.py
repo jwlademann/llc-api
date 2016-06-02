@@ -15,7 +15,8 @@ local_land_charge_schema = {
             "pattern": "\S+"
         },
         "geometry": {
-            "type": "object"
+            "type": "object",
+            "pattern": "\S+"
         },
         "originating-authority": {
             "type": "string",

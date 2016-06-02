@@ -33,7 +33,7 @@ def _format_error_messages(error, sub_domain):
     return error_message
 
 
-def process_get_request(host_url, primary_id=None):
+def process_get_request(host_url, primary_id=None, resolve='0'):
     sub_domain = host_url.split('.')[0]
     if sub_domain in register_details:
         try:
@@ -41,6 +41,8 @@ def process_get_request(host_url, primary_id=None):
                 register_url = (app.config['LLC_REGISTER_URL'] + "/" +
                                 register_details[sub_domain]['register_name'] + "/record/" +
                                 primary_id)
+                if resolve == '1':
+                    register_url += '?resolve=1'
             else:
                 register_url = (app.config['LLC_REGISTER_URL'] + "/" +
                                 register_details[sub_domain]['register_name'] + "/records")
