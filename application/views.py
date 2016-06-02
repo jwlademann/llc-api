@@ -40,8 +40,9 @@ def create_charge():
     if sub_domain in charge_utils.register_details:
         if sub_domain == "local-land-charge":
             try:
-                geometry = json.loads(request.get_json()['geometry'])
-                request.get_json()['geometry'] = geometry
+                if 'geometry' in request.get_json():
+                    geometry = json.loads(request.get_json()['geometry'])
+                    request.get_json()['geometry'] = geometry
             except (json.JSONDecodeError, TypeError) as e:
                 app.logger.warn('Could not decode json: ' + str(e))
                 pass  # Geometry causing these errors will be caught by validation and returned to the user
