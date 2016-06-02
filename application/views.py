@@ -25,7 +25,7 @@ def get_charges():
 @app.route("/record/<primary_id>", methods=["GET"])
 def get_charge(primary_id):
     sub_domain = request.headers['Host'].split('.')[0]
-    resolve = request.args.get['resolve']
+    resolve = request.args.get('resolve')
     if sub_domain in charge_utils.register_details:
         return_value = charge_utils.process_get_request(request.headers['Host'], primary_id, resolve)
     else:
@@ -46,6 +46,9 @@ def create_charge():
             except JSONDecodeError as e:
                 app.logger.warn('Could not encode json: ' + str(e))
                 pass  # let validation handle errors returned to the user
+            except TypeError as e:
+
+                pass
         result = charge_utils.validate_json(request.get_json(), sub_domain, request.method)
         if result['errors']:
             # If there are errors add array to JSON and return
