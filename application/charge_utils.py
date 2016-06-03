@@ -33,7 +33,7 @@ def _format_error_messages(error, sub_domain):
     return error_message
 
 
-def process_get_request(host_url, primary_id=None):
+def process_get_request(host_url, primary_id=None, resolve='0'):
     sub_domain = host_url.split('.')[0]
     if sub_domain in register_details:
         try:
@@ -41,6 +41,8 @@ def process_get_request(host_url, primary_id=None):
                 register_url = (app.config['LLC_REGISTER_URL'] + "/" +
                                 register_details[sub_domain]['register_name'] + "/record/" +
                                 primary_id)
+                if resolve == '1':
+                    register_url += '?resolve=1'
             else:
                 register_url = (app.config['LLC_REGISTER_URL'] + "/" +
                                 register_details[sub_domain]['register_name'] + "/records")
@@ -78,9 +80,10 @@ def validate_json(request_json, sub_domain, request_method, primary_id=None):
             }
             schema['required'].append(register_details[sub_domain]['register_name'])
 
-        if sub_domain == "local-land-charge" and "inspection-reference" in request_json:
+        if sub_domain == "local-land-charge" and "inspection-reference" in request_json and request_json['inspection-reference'].strip():
             # if the incoming json has the inspection reference field then the place of inspection
             # is also required
+            schema['properties']['place-of-inspection']['pattern'] = "\S+"
             schema['required'].append('place-of-inspection')
 
         validator = Draft4Validator(schema)

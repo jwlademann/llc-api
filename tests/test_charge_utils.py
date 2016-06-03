@@ -54,6 +54,21 @@ class TestChargeUtils(unittest.TestCase):
         result = charge_utils.validate_json(request_json, sub_domain, request_method, primary_id)
         self.assertEqual(result['errors'][0], "'local-land-charge' is a required property")
 
+    def test_validate_json_blank_inspection_reference(self):
+        request_json = {"charge-type": "test",
+                        "provision": "test",
+                        "description": "test",
+                        "originating-authority": "test",
+                        "inspection-reference": "",
+                        "geometry": {"crs": {"properties": {"name": "EPSG:27700"}, "type": "name"},
+                                     "coordinates": [[[241959.0, 52874.0], [257661.0, 52874.0],
+                                                      [257661.0, 62362.0], [241959.0, 62362.0],
+                                                      [241959.0, 52874.0]]], "type": "Polygon"}}
+        sub_domain = "local-land-charge"
+        request_method = 'POST'
+        result = charge_utils.validate_json(request_json, sub_domain, request_method)
+        self.assertEqual(len(result['errors']), 0)
+
     def test_validate_json_missing_place_of_inspection(self):
         request_json = {"charge-type": "test",
                         "provision": "test",
@@ -67,7 +82,25 @@ class TestChargeUtils(unittest.TestCase):
         sub_domain = "local-land-charge"
         request_method = 'POST'
         result = charge_utils.validate_json(request_json, sub_domain, request_method)
+        self.assertEqual(len(result['errors']), 1)
         self.assertEqual(result['errors'][0], "'place-of-inspection' is a required property")
+
+    def test_validate_json_blank_place_of_inspection(self):
+        request_json = {"charge-type": "test",
+                        "provision": "test",
+                        "description": "test",
+                        "originating-authority": "test",
+                        "inspection-reference": "test",
+                        "place-of-inspection": "",
+                        "geometry": {"crs": {"properties": {"name": "EPSG:27700"}, "type": "name"},
+                                     "coordinates": [[[241959.0, 52874.0], [257661.0, 52874.0],
+                                                      [257661.0, 62362.0], [241959.0, 62362.0],
+                                                      [241959.0, 52874.0]]], "type": "Polygon"}}
+        sub_domain = "local-land-charge"
+        request_method = 'POST'
+        result = charge_utils.validate_json(request_json, sub_domain, request_method)
+        self.assertEqual(len(result['errors']), 1)
+        self.assertEqual(result['errors'][0], "place-of-inspection: must not be blank")
 
     def test_validate_json_invalid_field_type(self):
         request_json = {"local-land-charge": 1,
@@ -308,11 +341,19 @@ class TestChargeUtils(unittest.TestCase):
 
     @mock.patch('application.charge_utils.requests.get')
     def test_process_get_request_valid_get_with_primary_id(self, mock_get):
-        mock_get.return_value = FakeResponse(str.encode(json.dumps(get_response_one)),
-                                             status_code=201)
+        mock_get.return_value = FakeResponse(str.encode(json.dumps(get_response_one)), status_code=201)
         host_url = "local-land-charge.landregistry.gov.uk"
         primary_id = '3'
         result = charge_utils.process_get_request(host_url, primary_id=primary_id)
+        self.assertEqual(result[1], 201)
+        self.assertEqual(json.loads(result[0])['charge-type'], "test")
+
+    @mock.patch('application.charge_utils.requests.get')
+    def test_get_request_resolve(self, mock_get):
+        mock_get.return_value = FakeResponse(str.encode(json.dumps(get_response_one)), status_code=201)
+        host_url = "local-land-charge.landregistry.gov.uk"
+        primary_id = '3'
+        result = charge_utils.process_get_request(host_url, primary_id=primary_id, resolve="1")
         self.assertEqual(result[1], 201)
         self.assertEqual(json.loads(result[0])['charge-type'], "test")
 
