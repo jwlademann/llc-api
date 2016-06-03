@@ -128,7 +128,6 @@ class TestChargeUtils(unittest.TestCase):
                                                       [241959.0, 52874.0]]], "type": "Polygon"}}
         sub_domain = "local-land-charge"
         request_method = 'POST'
-        primary_id = 1
         result = charge_utils.validate_json(request_json, sub_domain, request_method)
         self.assertEqual(result['errors'][0], "charge-type: must not be blank")
 
@@ -150,7 +149,6 @@ class TestChargeUtils(unittest.TestCase):
         host_url = "invalid.landregistry.gov.uk"
         request_method = 'POST'
         request_json = None
-        primary_id = None
         result = charge_utils.process_update_request(host_url, request_method, request_json)
         self.assertEqual(json.loads(result[0])['errors'][0], "invalid sub-domain")
 
@@ -168,9 +166,8 @@ class TestChargeUtils(unittest.TestCase):
                                                       [257661.0, 62362.0], [241959.0, 62362.0],
                                                       [241959.0, 52874.0]]], "type": "Polygon"}
                         }
-        primary_id = None
         try:
-            result = charge_utils.process_update_request(host_url, request_method, request_json)
+            charge_utils.process_update_request(host_url, request_method, request_json)
             self.fail('exception expected.')
         except werkzeug.exceptions.HTTPException as e:
             self.assertEqual(e.get_response().status_code, 500)
@@ -192,7 +189,6 @@ class TestChargeUtils(unittest.TestCase):
                                                       [257661.0, 62362.0], [241959.0, 62362.0],
                                                       [241959.0, 52874.0]]], "type": "Polygon"}
                         }
-        primary_id = None
         result = charge_utils.process_update_request(host_url, request_method, request_json)
         self.assertEqual(result[1], 404)
 
@@ -213,9 +209,8 @@ class TestChargeUtils(unittest.TestCase):
                                                       [257661.0, 62362.0], [241959.0, 62362.0],
                                                       [241959.0, 52874.0]]], "type": "Polygon"}
                         }
-        primary_id = None
         try:
-            result = charge_utils.process_update_request(host_url, request_method, request_json)
+            charge_utils.process_update_request(host_url, request_method, request_json)
             self.fail('exception expected.')
         except werkzeug.exceptions.HTTPException as e:
             self.assertEqual(e.get_response().status_code, 500)
@@ -236,7 +231,6 @@ class TestChargeUtils(unittest.TestCase):
                                                       [257661.0, 62362.0], [241959.0, 62362.0],
                                                       [241959.0, 52874.0]]], "type": "Polygon"}
                         }
-        primary_id = None
         result = charge_utils.process_update_request(host_url, request_method, request_json)
         self.assertEqual(result[1], 201)
         self.assertEqual(json.loads(result[0])['record']['charge-type'],
@@ -270,16 +264,14 @@ class TestChargeUtils(unittest.TestCase):
 
     def test_process_get_request_invalid_sub_domain(self):
         host_url = "invalid.landregistry.gov.uk"
-        primary_id = None
         result = charge_utils.process_get_request(host_url)
         self.assertEqual(json.loads(result[0])['errors'][0], "invalid sub-domain")
 
     @mock.patch('application.charge_utils.requests.get', side_effect=requests.ConnectionError())
     def test_process_get_request_connection_error(self, mock_get):
         host_url = "local-land-charge.landregistry.gov.uk"
-        primary_id = None
         try:
-            result = charge_utils.process_get_request(host_url)
+            charge_utils.process_get_request(host_url)
             self.fail('exception expected.')
         except werkzeug.exceptions.HTTPException as e:
             self.assertEqual(e.get_response().status_code, 500)
@@ -290,7 +282,6 @@ class TestChargeUtils(unittest.TestCase):
         mock_get.side_effect.response = FakeResponse(str.encode("This is an error message"),
                                                      status_code=404)
         host_url = "local-land-charge.landregistry.gov.uk"
-        primary_id = None
         result = charge_utils.process_get_request(host_url)
         self.assertEqual(result[1], 404)
 
@@ -300,9 +291,8 @@ class TestChargeUtils(unittest.TestCase):
         mock_get.side_effect.response = FakeResponse(str.encode("<!DOCTYPE HTML"),
                                                      status_code=404)
         host_url = "local-land-charge.landregistry.gov.uk"
-        primary_id = None
         try:
-            result = charge_utils.process_get_request(host_url)
+            charge_utils.process_get_request(host_url)
             self.fail('exception expected.')
         except werkzeug.exceptions.HTTPException as e:
             self.assertEqual(e.get_response().status_code, 500)
@@ -312,7 +302,6 @@ class TestChargeUtils(unittest.TestCase):
         mock_get.return_value = FakeResponse(str.encode(json.dumps(get_response_many)),
                                              status_code=201)
         host_url = "local-land-charge.landregistry.gov.uk"
-        primary_id = None
         result = charge_utils.process_get_request(host_url)
         self.assertEqual(result[1], 201)
         self.assertEqual(json.loads(result[0]), get_response_many)
