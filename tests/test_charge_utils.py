@@ -358,7 +358,6 @@ class TestChargeUtils(unittest.TestCase):
         self.assertEqual(json.loads(result[0])['charge-type'], "test")
 
 
-
 post_response = {
     "charge-type": "test",
     "description": "test",
