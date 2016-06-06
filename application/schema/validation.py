@@ -46,6 +46,21 @@ local_land_charge_schema = {
         "inspection-reference": {
             "type": "string"
         },
+        "land-description": {
+            "type": "string"
+        },
+        "work-particulars": {
+            "type": "string"
+        },
+        "capacity-description": {
+            "type": "string"
+        },
+        "compensation-paid": {
+            "type": "string"
+        },
+        "unique-property-reference-number": {
+            "type": "string"
+        },
         "archived": {
             "type": "boolean"
         }
