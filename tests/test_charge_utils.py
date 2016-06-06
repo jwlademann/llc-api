@@ -178,6 +178,34 @@ class TestChargeUtils(unittest.TestCase):
         result = charge_utils.validate_json(request_json, sub_domain, request_method)
         self.assertEqual(len(result['errors']), 0)
 
+    def test_validate_json_valid_json_with_optional_fields(self):
+        request_json = {"charge-type": "test",
+                        "provision": "test",
+                        "description": "test",
+                        "originating-authority": "test",
+                        "geometry": {"crs": {"properties": {"name": "EPSG:27700"}, "type": "name"},
+                                     "coordinates": [[[241959.0, 52874.0], [257661.0, 52874.0],
+                                                      [257661.0, 62362.0], [241959.0, 62362.0],
+                                                      [241959.0, 52874.0]]], "type": "Polygon"},
+                        "authority-charge-id": "test",
+                        "creation-date": "test",
+                        "expiration-date": "test",
+                        "instrument": "test",
+                        "migrating-authority": "test",
+                        "old-register-part": "test",
+                        "place-of-inspection": "test",
+                        "inspection-reference": "test",
+                        "land-description": "test",
+                        "work-particulars": "test",
+                        "capacity-description": "test",
+                        "compensation-paid": "test",
+                        "unique-property-reference-number": "test"
+                        }
+        sub_domain = "local-land-charge"
+        request_method = 'POST'
+        result = charge_utils.validate_json(request_json, sub_domain, request_method)
+        self.assertEqual(len(result['errors']), 0)
+
     def test_process_update_request_invalid_sub_domain(self):
         host_url = "invalid.landregistry.gov.uk"
         request_method = 'POST'
