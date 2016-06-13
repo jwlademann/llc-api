@@ -46,14 +46,14 @@ def call_once_only(func):
     return decorated
 
 
-def validate_helper(json_to_validate, sub_domain, request_method, primary_id=None):
+def validate_helper(json_to_validate, sub_domain, request_method, primary_id):
     error_message = ""
-    validator = _create_llc_validator(sub_domain)
+    validator = _create_llc_validator(sub_domain, request_method, primary_id)
     error_list = sorted(validator.iter_errors(json_to_validate),
                         key=str, reverse=True)
 
     for count, error in enumerate(error_list, start=1):
-        error_message += "Problem %s:\n\n%s\n\n" % (count, str(error))
+        error_message += "Problem %s:\n\n%s\n\n" % (count, re.sub('[\^\$]', '', str(error)))
 
     return len(error_list), error_message
 
@@ -81,8 +81,20 @@ def load_json_schema(sub_domain):
     return record
 
 
-def _create_llc_validator(sub_domain):
-    schema = load_json_schema()
+def _create_llc_validator(sub_domain, request_method, primary_id):
+    schema = copy.deepcopy(load_json_schema(sub_domain))
+
+    if request_method == 'PUT':
+        # If it's a PUT request consider it an update. This requires the primary ID value to
+        # be specified in the JSON. This must match the vale provided in the URL endpoint so
+        # dynamically alter the schema to make the field mandatory and use regex to make sure
+        # the values match.
+        schema['properties'][register_details[sub_domain]['register_name']] = {
+            "type": "string",
+            "pattern": "^{}$".format(primary_id)
+        }
+        schema['required'].append(register_details[sub_domain]['register_name'])
+
     validator = validator_for(schema)
     validator.check_schema(schema)
     return validator(schema)

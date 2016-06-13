@@ -84,6 +84,41 @@
                         }
                     }
                 }
+            },
+            "put": {
+                "summary": "Update an existing Statutory Provision",
+                "operationId": "updateStatutoryProvision",
+                "description": "Update an existing Statutory Provision oo the Statutory Provision Register",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "text/plain"
+                ],
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/Statutory-Provision"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "URL to the GET endpoint for the Statutory Provision is returned on successful creation.\n",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request due to invalid schema. Response will include 1 or more schema errors\n",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                }
             }
         }
     },

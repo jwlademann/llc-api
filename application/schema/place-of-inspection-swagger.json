@@ -84,6 +84,41 @@
                         }
                     }
                 }
+            },
+            "put": {
+                "summary": "Update an existing Place of Inspection",
+                "operationId": "updatePlaceOfInspection",
+                "description": "Update a Place of Inspection that exists on the Place of Inspection Register",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "text/plain"
+                ],
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/Place-of-Inspection"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "URL to the GET endpoint for the place of inspection is returned on successful creation.\n",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request due to invalid schema. Response will include 1 or more schema errors\n",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                }
             }
         }
     },

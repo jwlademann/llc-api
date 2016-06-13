@@ -84,6 +84,41 @@
                         }
                     }
                 }
+            },
+            "put": {
+                "summary": "Update an existing Local Land Charge",
+                "operationId": "updateLocalLandCharge",
+                "description": "Update a Local Land Charge that exists on the Local Land Charge Register",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "text/plain"
+                ],
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/Local-Land-Charge"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "URL to the GET endpoint for the Local Land Charge is returned on successful creation.\n",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request due to invalid schema. Response will include 1 or more schema errors\n",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                }
             }
         }
     },
@@ -126,6 +161,10 @@
         "FurtherInformation": {
             "type": "object",
             "description": "The place (physical (mandatory) and virtual (optional)) where the relevant documents pertaining to a local land charge registration may be inspected and/or copies obtained.",
+            "required": [
+              "inspection_reference",
+              "place_of_inspection"
+            ],
             "properties": {
                 "place_of_inspection": {
                     "type": "string"
@@ -160,10 +199,8 @@
             "type": "object",
             "required": [
                 "geometry",
-                "geo-description",
                 "provision",
                 "charge-type",
-                "further-information",
                 "originating-authority",
                 "charge-description"
             ],
@@ -250,6 +287,10 @@
                 },
                 "applicant-address": {
                     "description": "The address of an applicant for a Light Obstruction Notice",
+                    "type": "string"
+                },
+                "local-land-charge": {
+                    "description": "ID of that charge",
                     "type": "string"
                 },
                 "land-interest-description": {
