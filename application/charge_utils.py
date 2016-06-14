@@ -1,6 +1,5 @@
 from application import app
 from flask import abort
-from jsonschema import Draft4Validator
 from jsonschema.validators import validator_for
 import requests
 import copy
@@ -28,11 +27,19 @@ def _format_error_messages(error, sub_domain):
     error_message = error.message
     # Format error message for empty string regex to be more user friendly
     if " does not match '\\\\S+'" in error.message:
-        error_message = "must not be blank"
+        error_message_end = "must not be blank"
+
+        for element in error.path:
+            if isinstance(element, str):
+                error_message = element
+
+            error_message += ": %s" % error_message_end
+
     # For primary key validation remove start/end of line regex characters from error message,
     # for clarity
     if register_details[sub_domain]['register_name'] in error.path:
         error_message = re.sub('\^(.*)\$', '\\1', error.message)
+
     return error_message
 
 
@@ -53,15 +60,15 @@ def validate_helper(json_to_validate, sub_domain, request_method, primary_id):
                         key=str, reverse=True)
 
     for count, error in enumerate(error_list, start=1):
-        error_message += "Problem %s:\n\n%s\n\n" % (count, re.sub('[\^\$]', '', str(error)))
+        error_message += "Problem %s:\n\n%s\n\n" % (count, re.sub('[\^\$]', '', str(_format_error_messages(error, sub_domain))))
 
     return len(error_list), error_message
 
 
 @call_once_only
 def get_swagger_file(sub_domain):
-    return load_json_file(os.getcwd() +
-                                  "/application/schema/%s" % register_details[sub_domain]['filename'])
+    return load_json_file(os.getcwd() + "/application/schema/%s" % register_details[sub_domain]['filename'])
+
 
 def load_json_schema(sub_domain):
     swagger = get_swagger_file(sub_domain)
@@ -142,39 +149,8 @@ def process_get_request(host_url, primary_id=None, resolve='0'):
 
 def validate_json(request_json, sub_domain, request_method, primary_id=None):
     if sub_domain in register_details:
-        # Make a copy of the schema so any changes aren't persisted
-        schema = load_json_schema(sub_domain)
-
-        if request_method == 'PUT':
-            # If it's a PUT request consider it an update. This requires the primary ID value to
-            # be specified in the JSON. This must match the vale provided in the URL endpoint so
-            # dynamically alter the schema to make the field mandatory and use regex to make sure
-            # the values match.
-            schema['properties'][register_details[sub_domain]['register_name']] = {
-                "type": "string",
-                "pattern": "^{}$".format(primary_id)
-            }
-            schema['required'].append(register_details[sub_domain]['register_name'])
-
-        if sub_domain == "local-land-charge" and "inspection-reference" in request_json and request_json['inspection-reference'].strip():
-            # if the incoming json has the inspection reference field then the place of inspection
-            # is also required
-            schema['properties']['place-of-inspection']['pattern'] = "\S+"
-            schema['required'].append('place-of-inspection')
-
-        validator = Draft4Validator(schema)
-        errors = []
-        for error in validator.iter_errors(request_json):
-            # Validate JSON against schema and format error messages
-            error_message = _format_error_messages(error, sub_domain)
-            # Get element names of erroring fields if required
-            path = []
-            for element in error.path:
-                if isinstance(element, str):
-                    path.append(element)
-            errors.append((": ".join(list(filter(None, [".".join(path), error_message])))))
-        return_value = {"errors": sorted(errors)}
-
+        error_count, error_message = validate_helper(request_json, sub_domain, request_method, primary_id)
+        return_value = {"errors": error_message}
     else:
         return_value = {"errors": ['invalid sub-domain']}
     return return_value
