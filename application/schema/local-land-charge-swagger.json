@@ -62,7 +62,7 @@
                     {
                         "name": "primary_id",
                         "in": "path",
-                        "description": "Unique reference of the local land charge record.",
+                        "description": "Unique reference of the Local Land Charge record.",
                         "required": true,
                         "type": "string"
                     }
@@ -75,6 +75,45 @@
                         "description": "A specific Local Land Charge record is returned",
                         "schema": {
                             "$ref": "#/definitions/Local-Land-Charge"
+                        }
+                    },
+                    "404": {
+                        "description": "Local Land Charge not found",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "summary": "Update the Local Land Charge record.",
+                "description": "Make an update to the Local Land Charge record of the given primary id.",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "primary_id",
+                        "in": "path",
+                        "description": "Unique reference of the Local Land Charge record.",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "tags": [
+                    "LocalLandCharge"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The Local Land Charge record is returned with the updated data.",
+                        "schema": {
+                            "$ref": "#/definitions/Local-Land-Charge"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request due to invalid schema. Response will include 1 or more schema errors.",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
                         }
                     },
                     "404": {
