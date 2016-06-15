@@ -143,7 +143,7 @@ class TestChargeUtils(unittest.TestCase):
         sub_domain = "local-land-charge"
         request_method = 'POST'
         result = charge_utils.validate_json(request_json, sub_domain, request_method)
-        self.assertIn("charge-type: must not be blank", str(result['errors']))
+        self.assertIn("'charge-type' must not be blank", str(result['errors']))
 
     def test_validate_json_valid_json(self):
         request_json = {"charge-type": "test",

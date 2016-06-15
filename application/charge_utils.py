@@ -43,8 +43,12 @@ def _format_error_messages(error, sub_domain):
     for element in error.path:
         if isinstance(element, str):
             path.append(element)
-    # return ": ".join(list(filter(None, [".".join(path), error_message])))
-    return "{} {}".format(".".join(path), error_message.replace('\'', ''))
+
+    element_id = ".".join(path)
+    if element_id:
+        element_id = "'{}'".format(element_id)
+
+    return " ".join(list(filter(None, [element_id, error_message])))
 
 
 def validate_helper(json_to_validate, sub_domain, request_method, primary_id):
@@ -94,6 +98,9 @@ def _create_llc_validator(sub_domain, request_method, primary_id):
             "pattern": "^{}$".format(primary_id)
         }
         schema['required'].append(register_details[sub_domain]['register_name'])
+    elif request_method == 'POST':
+        # If POST request remove 'local-land-charge' from properties as it shouldn't be provided
+        schema['properties'].pop(register_details[sub_domain]['register_name'])
 
     validator = validator_for(schema)
     validator.check_schema(schema)
