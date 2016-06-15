@@ -43,16 +43,6 @@ def _format_error_messages(error, sub_domain):
     return error_message
 
 
-def call_once_only(func):
-    def decorated(*args, **kwargs):
-        try:
-            return decorated._once_result
-        except AttributeError:
-            decorated._once_result = func(*args, **kwargs)
-            return decorated._once_result
-    return decorated
-
-
 def validate_helper(json_to_validate, sub_domain, request_method, primary_id):
     errors = []
     validator = _create_llc_validator(sub_domain, request_method, primary_id)
@@ -65,7 +55,6 @@ def validate_helper(json_to_validate, sub_domain, request_method, primary_id):
     return len(error_list), errors
 
 
-@call_once_only
 def get_swagger_file(sub_domain):
     return load_json_file(os.getcwd() + "/application/schema/%s" % register_details[sub_domain]['filename'])
 

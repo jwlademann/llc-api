@@ -129,7 +129,7 @@
                 "statutory-provision-description"
             ],
             "properties": {
-                "text": {
+                "statutory-provision-description": {
                     "description": "The legal provisions which give authority to Local Land Charges.",
                     "type": "string"
                 },
