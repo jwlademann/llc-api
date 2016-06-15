@@ -37,7 +37,7 @@ class TestChargeUtils(unittest.TestCase):
         sub_domain = "local-land-charge"
         request_method = 'POST'
         result = charge_utils.validate_json(request_json, sub_domain, request_method)
-        self.assertTrue("'geometry' is a required property" in result['errors'])
+        self.assertTrue("'geometry' is a required property" in result['errors'][0])
 
     def test_validate_json_missing_extra_field_on_update(self):
         request_json = {"charge-type": "test",
@@ -52,7 +52,7 @@ class TestChargeUtils(unittest.TestCase):
         request_method = 'PUT'
         primary_id = 1
         result = charge_utils.validate_json(request_json, sub_domain, request_method, primary_id)
-        self.assertTrue("'local-land-charge' is a required property" in result['errors'])
+        self.assertIn("'local-land-charge' is a required property", str(result['errors']))
 
     def test_validate_json_blank_inspection_reference(self):
         request_json = {"charge-type": "test",
@@ -81,7 +81,7 @@ class TestChargeUtils(unittest.TestCase):
         sub_domain = "local-land-charge"
         request_method = 'POST'
         result = charge_utils.validate_json(request_json, sub_domain, request_method)
-        self.assertIn("'further-information' is a required property", result['errors'])
+        self.assertIn("'further-information' is a required property", str(result['errors']))
 
     def test_validate_json_invalid_field_type(self):
         request_json = {"local-land-charge": 1,
@@ -97,7 +97,7 @@ class TestChargeUtils(unittest.TestCase):
         request_method = 'PUT'
         primary_id = 1
         result = charge_utils.validate_json(request_json, sub_domain, request_method, primary_id)
-        self.assertTrue("1 is not of type 'string'" in result['errors'])
+        self.assertIn("1 is not of type 'string'", str(result['errors']))
 
     def test_validate_json_primary_id_does_not_match_url(self):
         request_json = {"local-land-charge": "2",
@@ -113,7 +113,7 @@ class TestChargeUtils(unittest.TestCase):
         request_method = 'PUT'
         primary_id = 1
         result = charge_utils.validate_json(request_json, sub_domain, request_method, primary_id)
-        self.assertTrue("'2' does not match '1'" in result['errors'])
+        self.assertIn("'2' does not match '1'", str(result['errors']))
 
     def test_validate_json_remove_invalid_fields(self):
         request_json = {"fruit": "banana",
@@ -128,7 +128,7 @@ class TestChargeUtils(unittest.TestCase):
         sub_domain = "local-land-charge"
         request_method = 'POST'
         result = charge_utils.validate_json(request_json, sub_domain, request_method)
-        self.assertTrue("Additional properties are not allowed ('fruit' was unexpected)" in result['errors'])
+        self.assertIn("Additional properties are not allowed ('fruit' was unexpected)", str(result['errors']))
 
     def test_validate_json_whitespace_value(self):
         request_json = {"charge-type": "    ",
@@ -143,7 +143,7 @@ class TestChargeUtils(unittest.TestCase):
         sub_domain = "local-land-charge"
         request_method = 'POST'
         result = charge_utils.validate_json(request_json, sub_domain, request_method)
-        self.assertIn("charge-type: must not be blank", result['errors'])
+        self.assertIn("charge-type: must not be blank", str(result['errors']))
 
     def test_validate_json_valid_json(self):
         request_json = {"charge-type": "test",

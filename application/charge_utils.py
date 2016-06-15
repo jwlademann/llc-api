@@ -54,15 +54,15 @@ def call_once_only(func):
 
 
 def validate_helper(json_to_validate, sub_domain, request_method, primary_id):
-    error_message = ""
+    errors = []
     validator = _create_llc_validator(sub_domain, request_method, primary_id)
     error_list = sorted(validator.iter_errors(json_to_validate),
                         key=str, reverse=True)
 
     for count, error in enumerate(error_list, start=1):
-        error_message += "Problem %s:\n\n%s\n\n" % (count, re.sub('[\^\$]', '', str(_format_error_messages(error, sub_domain))))
+        errors.append("Problem %s: %s" % (count, re.sub('[\^\$]', '', str(_format_error_messages(error, sub_domain)))))
 
-    return len(error_list), error_message
+    return len(error_list), errors
 
 
 @call_once_only
@@ -149,8 +149,8 @@ def process_get_request(host_url, primary_id=None, resolve='0'):
 
 def validate_json(request_json, sub_domain, request_method, primary_id=None):
     if sub_domain in register_details:
-        error_count, error_message = validate_helper(request_json, sub_domain, request_method, primary_id)
-        return_value = {"errors": error_message}
+        error_count, errors = validate_helper(request_json, sub_domain, request_method, primary_id)
+        return_value = {"errors": errors}
     else:
         return_value = {"errors": ['invalid sub-domain']}
     return return_value
