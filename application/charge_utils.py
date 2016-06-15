@@ -25,22 +25,26 @@ register_details = {
 
 def _format_error_messages(error, sub_domain):
     error_message = error.message
+
     # Format error message for empty string regex to be more user friendly
     if " does not match '\\\\S+'" in error.message:
-        error_message_end = "must not be blank"
+        error_message = "must not be blank"
 
-        for element in error.path:
-            if isinstance(element, str):
-                error_message = element
+    # Format error message for Curie regex to be more user friendly
+    if " does not match '\\\\S+:\\\\d+'" in error.message:
+        error_message = "must be specified as a Curie e.g. statutory-provision:1234"
 
-            error_message += ": %s" % error_message_end
-
-    # For primary key validation remove start/end of line regex characters from error message,
-    # for clarity
+    # For primary key validation remove start/end of line regex characters from error message for clarity
     if register_details[sub_domain]['register_name'] in error.path:
         error_message = re.sub('\^(.*)\$', '\\1', error.message)
 
-    return error_message
+    # Get element names of erroring fields if required
+    path = []
+    for element in error.path:
+        if isinstance(element, str):
+            path.append(element)
+    # return ": ".join(list(filter(None, [".".join(path), error_message])))
+    return "{} {}".format(".".join(path), error_message.replace('\'', ''))
 
 
 def validate_helper(json_to_validate, sub_domain, request_method, primary_id):
@@ -50,7 +54,7 @@ def validate_helper(json_to_validate, sub_domain, request_method, primary_id):
                         key=str, reverse=True)
 
     for count, error in enumerate(error_list, start=1):
-        errors.append("Problem %s: %s" % (count, re.sub('[\^\$]', '', str(_format_error_messages(error, sub_domain)))))
+        errors.append("Problem %s: %s" % (count, _format_error_messages(error, sub_domain)))
 
     return len(error_list), errors
 
