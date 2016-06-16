@@ -25,32 +25,30 @@ register_details = {
 
 def _format_error_messages(error, sub_domain):
     error_message = error.message
+
     # Format error message for empty string regex to be more user friendly
     if " does not match '\\\\S+'" in error.message:
-        error_message_end = "must not be blank"
+        error_message = "must not be blank"
 
-        for element in error.path:
-            if isinstance(element, str):
-                error_message = element
+    # Format error message for Curie regex to be more user friendly
+    if " does not match '\\\\S+:\\\\d+'" in error.message:
+        error_message = "must be specified as a Curie e.g. statutory-provision:1234"
 
-            error_message += ": %s" % error_message_end
-
-    # For primary key validation remove start/end of line regex characters from error message,
-    # for clarity
+    # For primary key validation remove start/end of line regex characters from error message for clarity
     if register_details[sub_domain]['register_name'] in error.path:
         error_message = re.sub('\^(.*)\$', '\\1', error.message)
 
-    return error_message
+    # Get element names of erroring fields if required
+    path = []
+    for element in error.path:
+        if isinstance(element, str):
+            path.append(element)
 
+    element_id = ".".join(path)
+    if element_id:
+        element_id = "'{}'".format(element_id)
 
-def call_once_only(func):
-    def decorated(*args, **kwargs):
-        try:
-            return decorated._once_result
-        except AttributeError:
-            decorated._once_result = func(*args, **kwargs)
-            return decorated._once_result
-    return decorated
+    return " ".join(list(filter(None, [element_id, error_message])))
 
 
 def validate_helper(json_to_validate, sub_domain, request_method, primary_id):
@@ -60,12 +58,11 @@ def validate_helper(json_to_validate, sub_domain, request_method, primary_id):
                         key=str, reverse=True)
 
     for count, error in enumerate(error_list, start=1):
-        errors.append("Problem %s: %s" % (count, re.sub('[\^\$]', '', str(_format_error_messages(error, sub_domain)))))
+        errors.append("Problem %s: %s" % (count, _format_error_messages(error, sub_domain)))
 
     return len(error_list), errors
 
 
-@call_once_only
 def get_swagger_file(sub_domain):
     return load_json_file(os.getcwd() + "/application/schema/%s" % register_details[sub_domain]['filename'])
 
@@ -101,6 +98,9 @@ def _create_llc_validator(sub_domain, request_method, primary_id):
             "pattern": "^{}$".format(primary_id)
         }
         schema['required'].append(register_details[sub_domain]['register_name'])
+    elif request_method == 'POST':
+        # If POST request remove 'local-land-charge' from properties as it shouldn't be provided
+        schema['properties'].pop(register_details[sub_domain]['register_name'])
 
     validator = validator_for(schema)
     validator.check_schema(schema)

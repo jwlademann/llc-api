@@ -214,7 +214,7 @@
             "properties": {
                 "local-land-charge": {
                     "type": "string",
-                    "description": "NOTE: Unique indentifier for this charge. Do not provide when creating a charge. This value is returned on creation or via a GET request"
+                    "description": "NOTE: Unique indentifier for this charge. Do not provide when creating a charge (POST request). Only required for PUT requests"
                 },
                 "geometry": {
                     "$ref": "#/definitions/Geometry"
