@@ -136,6 +136,10 @@
                 "name"
             ],
             "properties": {
+                "llc-registering-authority": {
+                    "type": "string",
+                    "description": "NOTE: Unique indentifier for this charge. Do not provide when creating a charge (POST request). Only required for PUT requests"
+                },
                 "name": {
                     "description": "The name of the Local Authority",
                     "type": "string",

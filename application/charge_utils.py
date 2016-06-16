@@ -11,7 +11,7 @@ register_details = {
     "local-land-charge": {"filename": "local-land-charge-swagger.json",
                           "definition_name": "Local-Land-Charge",
                           "register_name": "local-land-charge"},
-    "llc-place-of-inspection": {"filename": "place-of-inspection-swagger.json",
+    "llc-place-of-inspection": {"filename": "further-information-location-swagger.json",
                                 "definition_name": "Place-of-Inspection",
                                 "register_name": "llc-place-of-inspection"},
     "llc-registering-authority": {"filename": "registering-authority-swagger.json",

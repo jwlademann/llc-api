@@ -135,6 +135,10 @@
                 "location"
             ],
             "properties": {
+                "llc-further-information-location": {
+                    "type": "string",
+                    "description": "NOTE: Unique indentifier for this charge. Do not provide when creating a charge (POST request). Only required for PUT requests"
+                },
                 "location": {
                     "description": "Description (Address) of the information location.",
                     "type": "string",

@@ -136,6 +136,10 @@
                 "statutory-provision-description"
             ],
             "properties": {
+                "statutory_provision": {
+                    "type": "string",
+                    "description": "NOTE: Unique indentifier for this charge. Do not provide when creating a charge (POST request). Only required for PUT requests"
+                },
                 "statutory-provision-description": {
                     "description": "The legal provisions which give authority to Local Land Charges.",
                     "type": "string",
