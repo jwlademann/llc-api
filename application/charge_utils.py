@@ -71,7 +71,8 @@ def validate_date(errors, json_to_validate):
     dates = ["creation-date", "expiration-date"]
     for date in dates:
         try:
-            datetime.strptime(json_to_validate[date], "%d/%m/%Y")
+            if date in json_to_validate:
+                datetime.strptime(json_to_validate[date], "%d/%m/%Y")
         except ValueError:
             error_message = "'%s' " % date + "is an invalid date"
             errors.append("Problem %s: %s" % (len(errors) + 1, error_message))

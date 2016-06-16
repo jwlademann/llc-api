@@ -161,6 +161,23 @@ class TestChargeUtils(unittest.TestCase):
         result = charge_utils.validate_json(request_json, sub_domain, request_method)
         self.assertEqual(len(result['errors']), 0)
 
+    def test_validate_json_invalid_date(self):
+        request_json = {"charge-type": "test",
+                        "provision": "test:123",
+                        "charge-description": "test",
+                        "originating-authorities": "test:123",
+                        "creation-date": "29/02/2008",
+                        "expiration-date": "29/02/2009",
+                        "further-information": [{"information-location": "test"}],
+                        "geometry": {"crs": {"properties": {"name": "EPSG:27700"}, "type": "name"},
+                                     "coordinates": [[[241959.0, 52874.0], [257661.0, 52874.0],
+                                                      [257661.0, 62362.0], [241959.0, 62362.0],
+                                                      [241959.0, 52874.0]]], "type": "Polygon"}}
+        sub_domain = "local-land-charge"
+        request_method = 'POST'
+        result = charge_utils.validate_json(request_json, sub_domain, request_method)
+        self.assertIn("'expiration-date' is an invalid date", str(result['errors']))
+
     def test_validate_json_valid_json_with_optional_fields(self):
         request_json = {"charge-type": "test",
                         "provision": "test:123",
