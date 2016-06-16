@@ -136,7 +136,7 @@
                 "statutory-provision-description"
             ],
             "properties": {
-                "statutory_provision": {
+                "statutory-provision": {
                     "type": "string",
                     "description": "NOTE: Unique indentifier for this charge. Do not provide when creating a charge (POST request). Only required for PUT requests"
                 },

@@ -5,7 +5,7 @@
         "description": "Land Registry Local Land Charge API",
         "version": "0.0.1"
     },
-    "host": "llc-further-information-location",
+    "host": "further-information-location",
     "schemes": [
         "https"
     ],
@@ -135,7 +135,7 @@
                 "location"
             ],
             "properties": {
-                "llc-further-information-location": {
+                "further-information-location": {
                     "type": "string",
                     "description": "NOTE: Unique indentifier for this charge. Do not provide when creating a charge (POST request). Only required for PUT requests"
                 },
