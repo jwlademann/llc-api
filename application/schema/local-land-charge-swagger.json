@@ -98,6 +98,14 @@
                         "description": "Unique reference of the Local Land Charge record.",
                         "required": true,
                         "type": "string"
+                    },
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/Local-Land-Charge"
+                        }
                     }
                 ],
                 "tags": [
@@ -178,7 +186,8 @@
                     "type": "array",
                     "maxItems": 3,
                     "items": {
-                        "type": "string"
+                        "type": "string",
+                        "pattern": "\\S+"
                     }
                 }
             }
@@ -217,7 +226,8 @@
                 },
                 "charge-description": {
                     "description": "A description of the land affected by the LLC in terms of its geographic location - i.e. it describes that depicted by an associated Polygon.",
-                    "type": "string"
+                    "type": "string",
+                    "pattern": "\\S+"
                 },
                 "provision": {
                     "type": "string",
@@ -235,7 +245,8 @@
                 },
                 "migrating-authority": {
                     "description": "Local Authority from which and at which the Local Land Charge was migrated. Legacy field, not required for new Local Land Charge register.",
-                    "type": "string"
+                    "type": "string",
+                    "pattern": "\\S+"
                 },
                 "old-register-part": {
                     "$ref": "#/definitions/OldRegisterPart"
@@ -246,16 +257,19 @@
                 "creation-date": {
                     "description": "The date a Local Land Charge first came into effect. This could be the date of the instrument, the date of the decision etc.",
                     "type": "string",
-                    "format": "date"
+                    "format": "date",
+                    "pattern": "^(0[1-9]|[12][0-9]|3[01])/(0[1-9]|1[012])/\\d{4}$"
                 },
                 "expiration-date": {
                     "description": "The date on which a Land Interest in respect of a local land charge ceases to exist.",
                     "type": "string",
-                    "format": "date"
+                    "format": "date",
+                    "pattern": "^(0[1-9]|[12][0-9]|3[01])/(0[1-9]|1[012])/\\d{4}$"
                 },
                 "instrument": {
                     "description": "The document giving rise to a Local Land Charge e.g. charge, deed, agreement etc.",
-                    "type": "string"
+                    "type": "string",
+                    "pattern": "\\S+"
                 },
                 "originating-authorities": {
                     "type": "string",
@@ -272,19 +286,27 @@
                 },
                 "land-description": {
                     "description": "A verbal description of the land adjoining the land compulsorily purchased for public works.",
-                    "type": "string"
+                    "type": "string",
+                    "pattern": "\\S+"
                 },
                 "work-particulars": {
                     "description": "A verbal description of the reason why the land adjoining the retained land was compulsorily acquired by an authority with compulsory purchasing powers - the particulars and extent of the works.",
-                    "type": "string"
+                    "type": "string",
+                    "pattern": "\\S+"
                 },
                 "capacity-description": {
                     "description": "A description of the capacity in which the land was acquired; e.g. freehold.",
-                    "type": "string"
+                    "type": "string",
+                    "pattern": "\\S+"
                 },
                 "compensation-paid": {
                     "description": "Amount already paid to the landowner from which the land was acquired in respect of damages to his retained land and the total sum agreed.",
-                    "type": "string"
+                    "type": "string",
+                    "pattern": "\\S+"
+                },
+                "archived": {
+                    "description": "Boolean to indicate whether the record has been archived.",
+                    "type": "boolean"
                 }
             }
         },

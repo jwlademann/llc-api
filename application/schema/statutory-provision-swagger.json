@@ -97,6 +97,13 @@
                 ],
                 "parameters": [
                     {
+                        "name": "primary_id",
+                        "in": "path",
+                        "description": "Unique reference of the Statutory Provision record.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
                         "in": "body",
                         "name": "body",
                         "required": true,
@@ -129,9 +136,14 @@
                 "statutory-provision-description"
             ],
             "properties": {
+                "statutory_provision": {
+                    "type": "string",
+                    "description": "NOTE: Unique indentifier for this charge. Do not provide when creating a charge (POST request). Only required for PUT requests"
+                },
                 "statutory-provision-description": {
                     "description": "The legal provisions which give authority to Local Land Charges.",
-                    "type": "string"
+                    "type": "string",
+                    "pattern": "\\S+"
                 },
                 "archived": {
                     "description": "Boolean indicator to indicate whether the record has been archived",
