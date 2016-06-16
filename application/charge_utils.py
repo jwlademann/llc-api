@@ -1,6 +1,7 @@
 from application import app
 from flask import abort
 from jsonschema.validators import validator_for
+from datetime import datetime
 import requests
 import copy
 import re
@@ -60,7 +61,21 @@ def validate_helper(json_to_validate, sub_domain, request_method, primary_id):
     for count, error in enumerate(error_list, start=1):
         errors.append("Problem %s: %s" % (count, _format_error_messages(error, sub_domain)))
 
-    return len(error_list), errors
+    validate_date(errors, json_to_validate)
+
+    return errors
+
+
+def validate_date(errors, json_to_validate):
+
+    dates = ["creation-date", "expiration-date"]
+    for date in dates:
+        try:
+            if date in json_to_validate:
+                datetime.strptime(json_to_validate[date], "%d/%m/%Y")
+        except ValueError:
+            error_message = "'%s' " % date + "is an invalid date"
+            errors.append("Problem %s: %s" % (len(errors) + 1, error_message))
 
 
 def get_swagger_file(sub_domain):
@@ -149,7 +164,7 @@ def process_get_request(host_url, primary_id=None, resolve='0'):
 
 def validate_json(request_json, sub_domain, request_method, primary_id=None):
     if sub_domain in register_details:
-        error_count, errors = validate_helper(request_json, sub_domain, request_method, primary_id)
+        errors = validate_helper(request_json, sub_domain, request_method, primary_id)
         return_value = {"errors": errors}
     else:
         return_value = {"errors": ['invalid sub-domain']}
