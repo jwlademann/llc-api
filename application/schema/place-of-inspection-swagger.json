@@ -5,7 +5,7 @@
         "description": "Land Registry Local Land Charge API",
         "version": "0.0.1"
     },
-    "host": "llc-place-of-inspection",
+    "host": "llc-further-information-location",
     "schemes": [
         "https"
     ],
@@ -16,9 +16,9 @@
     "paths": {
         "/records/": {
             "post": {
-                "summary": "Add a new Place of Inspection",
-                "operationId": "addPlaceOfInspection",
-                "description": "Add a Place of Inspection to the Place of Inspection Register",
+                "summary": "Add a new Information Location",
+                "operationId": "addInformationLocation",
+                "description": "Add an Information Location to the Information Location Register",
                 "consumes": [
                     "application/json"
                 ],
@@ -31,13 +31,13 @@
                         "name": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/Place-of-Inspection"
+                            "$ref": "#/definitions/Information-Location"
                         }
                     }
                 ],
                 "responses": {
                     "201": {
-                        "description": "URL to the GET endpoint for the place of inspection is returned on successful creation.\n",
+                        "description": "URL to the GET endpoint for the further information location is returned on successful creation.\n",
                         "schema": {
                             "type": "string"
                         }
@@ -53,8 +53,8 @@
         },
         "/record/{primary_id}": {
             "get": {
-                "summary": "Get the Place of Inspection record",
-                "description": "The Place of Inspection endpoint returns details of a specific Place of Inspection record based on the unique primary id.\n",
+                "summary": "Get the Information Location record",
+                "description": "The Information Location endpoint returns details of a specific Information Location record based on the unique primary id.\n",
                 "produces": [
                     "application/json"
                 ],
@@ -62,23 +62,23 @@
                     {
                         "name": "primary_id",
                         "in": "path",
-                        "description": "Unique reference of the local land charge record.",
+                        "description": "Unique reference of the information location record.",
                         "required": true,
                         "type": "string"
                     }
                 ],
                 "tags": [
-                    "PlaceOfInsepction"
+                    "InformationLocation"
                 ],
                 "responses": {
                     "200": {
-                        "description": "A specific Place of Inspection is returned",
+                        "description": "A specific Information Location is returned",
                         "schema": {
-                            "$ref": "#/definitions/Place-of-Inspection"
+                            "$ref": "#/definitions/Information-Location"
                         }
                     },
                     "404": {
-                        "description": "Place of Inspection not found",
+                        "description": "Information-Location not found",
                         "schema": {
                             "$ref": "#/definitions/Error"
                         }
@@ -86,9 +86,9 @@
                 }
             },
             "put": {
-                "summary": "Update an existing Place of Inspection",
-                "operationId": "updatePlaceOfInspection",
-                "description": "Update a Place of Inspection that exists on the Place of Inspection Register",
+                "summary": "Update an existing Information Location",
+                "operationId": "updateInformationLocation",
+                "description": "Update a Information Location that exists on the Information Location Register",
                 "consumes": [
                     "application/json"
                 ],
@@ -107,13 +107,13 @@
                         "name": "body",
                         "in": "body",
                         "schema": {
-                            "$ref": "#/definitions/Place-of-Inspection"
+                            "$ref": "#/definitions/Information-Location"
                         }
                     }
                 ],
                 "responses": {
                     "201": {
-                        "description": "URL to the GET endpoint for the place of inspection is returned on successful creation.\n",
+                        "description": "URL to the GET endpoint for the information location is returned on successful creation.\n",
                         "schema": {
                             "type": "string"
                         }
@@ -129,7 +129,7 @@
         }
     },
     "definitions": {
-        "Further-Information": {
+        "Information-Location": {
             "type": "object",
             "required": [
                 "location"

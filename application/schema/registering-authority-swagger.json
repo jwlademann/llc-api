@@ -138,7 +138,8 @@
             "properties": {
                 "name": {
                     "description": "The name of the Local Authority",
-                    "type": "string"
+                    "type": "string",
+                    "pattern": "\\S+"
                 },
                 "archived": {
                     "description": "Boolean indicator to indicate whether the record has been archived",
