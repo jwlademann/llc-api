@@ -97,9 +97,15 @@
                 ],
                 "parameters": [
                     {
-                        "in": "body",
-                        "name": "body",
+                        "name": "primary_id",
+                        "in": "path",
+                        "description": "Unique reference of the local land charge record.",
                         "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "body",
+                        "in": "body",
                         "schema": {
                             "$ref": "#/definitions/Place-of-Inspection"
                         }
@@ -123,18 +129,19 @@
         }
     },
     "definitions": {
-        "Place-of-Inspection": {
+        "Further-Information": {
             "type": "object",
             "required": [
                 "location"
             ],
             "properties": {
                 "location": {
-                    "description": "Description (Address) of the place of inspection.",
-                    "type": "string"
+                    "description": "Description (Address) of the information location.",
+                    "type": "string",
+                    "pattern": "\\S+"
                 },
                 "archived": {
-                    "description": "Boolean indicator to indicate whether the record has been archived",
+                    "description": "Boolean to indicate whether the record has been archived",
                     "type": "boolean"
                 }
             }

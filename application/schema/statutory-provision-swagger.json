@@ -97,6 +97,13 @@
                 ],
                 "parameters": [
                     {
+                        "name": "primary_id",
+                        "in": "path",
+                        "description": "Unique reference of the Statutory Provision record.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
                         "in": "body",
                         "name": "body",
                         "required": true,
