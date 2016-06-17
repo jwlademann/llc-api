@@ -138,7 +138,7 @@
         "CURIE": {
             "description": "Abbreviated syntax for a URI, consisting of the name of the register followed by a colon, and then the primary identifier of the record. For example 'local-land-charge:123'",
             "type": "string",
-            "pattern": "\\S+:\\d+"
+            "pattern": "\\S+:\\S+"
         },
         "OldRegisterPart": {
             "description": "The part of the Local Land Charges register that a Local Land Charge entry resides in prior to migration",
@@ -206,7 +206,7 @@
             "required": [
                 "geometry",
                 "charge-description",
-                "provision",
+                "statutory-provision",
                 "charge-type",
                 "further-information",
                 "originating-authorities"
@@ -229,7 +229,7 @@
                     "type": "string",
                     "pattern": "\\S+"
                 },
-                "provision": {
+                "statutory-provision": {
                     "type": "string",
                     "description": "The statutory provision(s) under which a local land charge has arisen, whether expressly (e.g. under s224 Highways Act 1980 or s106 Town and Country Planning Act 1990) or otherwise (e.g. conditional planning permission granted under s70 Town and Country Planning Act 1990).",
                     "allOf": [
@@ -272,24 +272,25 @@
                     "pattern": "\\S+"
                 },
                 "originating-authorities": {
-                    "type": "string",
+                    "type": "array",
                     "description": "The Minister of the Crown, government department, local authority or other person by whom the charge is brought into existence or by whom, on its coming into existence, the charge is enforceable.",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/CURIE"
-                        }
-                    ]
+                    "items": {
+                        "$ref": "#/definitions/CURIE"
+                    }
                 },
                 "unique-property-reference-numbers": {
                     "description": "Unique Property Reference Numbers",
-                    "type": "integer"
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
                 },
                 "land-description": {
                     "description": "A verbal description of the land adjoining the land compulsorily purchased for public works.",
                     "type": "string",
                     "pattern": "\\S+"
                 },
-                "work-particulars": {
+                "works-particulars": {
                     "description": "A verbal description of the reason why the land adjoining the retained land was compulsorily acquired by an authority with compulsory purchasing powers - the particulars and extent of the works.",
                     "type": "string",
                     "pattern": "\\S+"
