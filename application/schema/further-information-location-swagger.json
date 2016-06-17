@@ -5,7 +5,7 @@
         "description": "Land Registry Local Land Charge API",
         "version": "0.0.1"
     },
-    "host": "statutory_provision",
+    "host": "further-information-location",
     "schemes": [
         "https"
     ],
@@ -16,9 +16,9 @@
     "paths": {
         "/records/": {
             "post": {
-                "summary": "Add a new Statutory Provision",
-                "operationId": "addStatutoryProvision",
-                "description": "Add a Statutory Provision to the Statutory Provision Register",
+                "summary": "Add a new Information Location",
+                "operationId": "addInformationLocation",
+                "description": "Add an Information Location to the Information Location Register",
                 "consumes": [
                     "application/json"
                 ],
@@ -31,13 +31,13 @@
                         "name": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/Statutory-Provision"
+                            "$ref": "#/definitions/Information-Location"
                         }
                     }
                 ],
                 "responses": {
                     "201": {
-                        "description": "URL to the GET endpoint for the Statutory Provision is returned on successful creation.\n",
+                        "description": "URL to the GET endpoint for the further information location is returned on successful creation.\n",
                         "schema": {
                             "type": "string"
                         }
@@ -53,8 +53,8 @@
         },
         "/record/{primary_id}": {
             "get": {
-                "summary": "Get the Statutory Provision record",
-                "description": "The Statutory Provision endpoint returns details of a specific Statutory Provision record based on the unique primary id.\n",
+                "summary": "Get the Information Location record",
+                "description": "The Information Location endpoint returns details of a specific Information Location record based on the unique primary id.\n",
                 "produces": [
                     "application/json"
                 ],
@@ -62,23 +62,23 @@
                     {
                         "name": "primary_id",
                         "in": "path",
-                        "description": "Unique reference of the Statutory Provision record.",
+                        "description": "Unique reference of the information location record.",
                         "required": true,
                         "type": "string"
                     }
                 ],
                 "tags": [
-                    "StatutoryProvision"
+                    "InformationLocation"
                 ],
                 "responses": {
                     "200": {
-                        "description": "A specific Statutory Provision is returned",
+                        "description": "A specific Information Location is returned",
                         "schema": {
-                            "$ref": "#/definitions/Statutory-Provision"
+                            "$ref": "#/definitions/Information-Location"
                         }
                     },
                     "404": {
-                        "description": "Statutory Provision not found",
+                        "description": "Information-Location not found",
                         "schema": {
                             "$ref": "#/definitions/Error"
                         }
@@ -86,9 +86,9 @@
                 }
             },
             "put": {
-                "summary": "Update an existing Statutory Provision",
-                "operationId": "updateStatutoryProvision",
-                "description": "Update an existing Statutory Provision oo the Statutory Provision Register",
+                "summary": "Update an existing Information Location",
+                "operationId": "updateInformationLocation",
+                "description": "Update a Information Location that exists on the Information Location Register",
                 "consumes": [
                     "application/json"
                 ],
@@ -99,22 +99,21 @@
                     {
                         "name": "primary_id",
                         "in": "path",
-                        "description": "Unique reference of the Statutory Provision record.",
+                        "description": "Unique reference of the local land charge record.",
                         "required": true,
                         "type": "string"
                     },
                     {
-                        "in": "body",
                         "name": "body",
-                        "required": true,
+                        "in": "body",
                         "schema": {
-                            "$ref": "#/definitions/Statutory-Provision"
+                            "$ref": "#/definitions/Information-Location"
                         }
                     }
                 ],
                 "responses": {
                     "201": {
-                        "description": "URL to the GET endpoint for the Statutory Provision is returned on successful creation.\n",
+                        "description": "URL to the GET endpoint for the information location is returned on successful creation.\n",
                         "schema": {
                             "type": "string"
                         }
@@ -130,23 +129,23 @@
         }
     },
     "definitions": {
-        "Statutory-Provision": {
+        "Information-Location": {
             "type": "object",
             "required": [
-                "statutory-provision-description"
+                "location"
             ],
             "properties": {
-                "statutory-provision": {
+                "further-information-location": {
                     "type": "string",
                     "description": "NOTE: Unique indentifier for this charge. Do not provide when creating a charge (POST request). Only required for PUT requests"
                 },
-                "statutory-provision-description": {
-                    "description": "The legal provisions which give authority to Local Land Charges.",
+                "location": {
+                    "description": "Description (Address) of the information location.",
                     "type": "string",
                     "pattern": "\\S+"
                 },
                 "archived": {
-                    "description": "Boolean indicator to indicate whether the record has been archived",
+                    "description": "Boolean to indicate whether the record has been archived",
                     "type": "boolean"
                 }
             }

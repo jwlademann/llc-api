@@ -1,39 +1,136 @@
-from application.schema.validation import (local_land_charge_schema, statutory_provision_schema,
-                                           llc_place_of_inspection_schema,
-                                           llc_registering_authority_schema)
 from application import app
 from flask import abort
-from jsonschema import Draft4Validator
+from jsonschema.validators import validator_for
+from datetime import datetime
 import requests
 import copy
 import re
+import os
 import json
 
 register_details = {
-    "local-land-charge": {"validator": local_land_charge_schema,
+    "local-land-charge": {"filename": "local-land-charge-swagger.json",
+                          "definition_name": "Local-Land-Charge",
                           "register_name": "local-land-charge"},
-    "llc-place-of-inspection": {"validator": llc_place_of_inspection_schema,
-                                "register_name": "llc-place-of-inspection"},
-    "llc-registering-authority": {"validator": llc_registering_authority_schema,
+    "further-information-location": {"filename": "further-information-location-swagger.json",
+                                     "definition_name": "Information-Location",
+                                     "register_name": "further-information-location"},
+    "llc-registering-authority": {"filename": "registering-authority-swagger.json",
+                                  "definition_name": "Registering-Authority",
                                   "register_name": "llc-registering-authority"},
-    "statutory-provision": {"validator": statutory_provision_schema,
+    "statutory-provision": {"filename": "statutory-provision-swagger.json",
+                            "definition_name": "Statutory-Provision",
                             "register_name": "statutory-provision"}
 }
 
 
 def _format_error_messages(error, sub_domain):
     error_message = error.message
+
     # Format error message for empty string regex to be more user friendly
     if " does not match '\\\\S+'" in error.message:
         error_message = "must not be blank"
-    # For primary key validation remove start/end of line regex characters from error message,
-    # for clarity
+
+    # Format error message for Curie regex to be more user friendly
+    if " does not match '\\\\S+:\\\\d+'" in error.message:
+        error_message = "must be specified as a Curie e.g. statutory-provision:1234"
+
+    # For primary key validation remove start/end of line regex characters from error message for clarity
     if register_details[sub_domain]['register_name'] in error.path:
         error_message = re.sub('\^(.*)\$', '\\1', error.message)
-    return error_message
+
+    # Get element names of erroring fields if required
+    path = []
+    for element in error.path:
+        if isinstance(element, str):
+            path.append(element)
+
+    element_id = ".".join(path)
+    if element_id:
+        element_id = "'{}'".format(element_id)
+
+    return " ".join(list(filter(None, [element_id, error_message])))
+
+
+def validate_helper(json_to_validate, sub_domain, request_method, primary_id):
+    errors = []
+    validator = _create_llc_validator(sub_domain, request_method, primary_id)
+    error_list = sorted(validator.iter_errors(json_to_validate),
+                        key=str, reverse=True)
+
+    for count, error in enumerate(error_list, start=1):
+        errors.append("Problem %s: %s" % (count, _format_error_messages(error, sub_domain)))
+
+    validate_date(errors, json_to_validate)
+
+    return errors
+
+
+def validate_date(errors, json_to_validate):
+
+    dates = ["creation-date", "expiration-date"]
+    for date in dates:
+        try:
+            if date in json_to_validate:
+                datetime.strptime(json_to_validate[date], "%d/%m/%Y")
+        except ValueError:
+            error_message = "'%s' " % date + "is an invalid date"
+            errors.append("Problem %s: %s" % (len(errors) + 1, error_message))
+
+
+def get_swagger_file(sub_domain):
+    return load_json_file(os.getcwd() + "/application/schema/%s" % register_details[sub_domain]['filename'])
+
+
+def load_json_schema(sub_domain):
+    swagger = get_swagger_file(sub_domain)
+
+    definitions = swagger["definitions"]
+
+    record_definition = definitions[register_details[sub_domain]['definition_name']]
+
+    record = {
+        "definitions": definitions,
+        "properties": record_definition["properties"],
+        "required": record_definition["required"],
+        "type": "object",
+        "additionalProperties": False
+    }
+
+    return record
+
+
+def _create_llc_validator(sub_domain, request_method, primary_id):
+    schema = copy.deepcopy(load_json_schema(sub_domain))
+
+    if request_method == 'PUT':
+        # If it's a PUT request consider it an update. This requires the primary ID value to
+        # be specified in the JSON. This must match the vale provided in the URL endpoint so
+        # dynamically alter the schema to make the field mandatory and use regex to make sure
+        # the values match.
+        schema['properties'][register_details[sub_domain]['register_name']] = {
+            "type": "string",
+            "pattern": "^{}$".format(primary_id)
+        }
+        schema['required'].append(register_details[sub_domain]['register_name'])
+    elif request_method == 'POST':
+        # If POST request remove 'local-land-charge' from properties as it shouldn't be provided
+        schema['properties'].pop(register_details[sub_domain]['register_name'])
+
+    validator = validator_for(schema)
+    validator.check_schema(schema)
+    return validator(schema)
+
+
+def load_json_file(file_path):
+    with open(file_path, 'rt') as file:
+        json_data = json.load(file)
+
+    return json_data
 
 
 def process_get_request(host_url, primary_id=None, resolve='0'):
+
     sub_domain = host_url.split('.')[0]
     if sub_domain in register_details:
         try:
@@ -67,37 +164,8 @@ def process_get_request(host_url, primary_id=None, resolve='0'):
 
 def validate_json(request_json, sub_domain, request_method, primary_id=None):
     if sub_domain in register_details:
-        # Make a copy of the schema so any changes aren't persisted
-        schema = copy.deepcopy(register_details[sub_domain]['validator'])
-        if request_method == 'PUT':
-            # If it's a PUT request consider it an update. This requires the primary ID value to
-            # be specified in the JSON. This must match the vale provided in the URL endpoint so
-            # dynamically alter the schema to make the field mandatory and use regex to make sure
-            # the values match.
-            schema['properties'][register_details[sub_domain]['register_name']] = {
-                "type": "string",
-                "pattern": "^{}$".format(primary_id)
-            }
-            schema['required'].append(register_details[sub_domain]['register_name'])
-
-        if sub_domain == "local-land-charge" and "inspection-reference" in request_json and request_json['inspection-reference'].strip():
-            # if the incoming json has the inspection reference field then the place of inspection
-            # is also required
-            schema['properties']['place-of-inspection']['pattern'] = "\S+"
-            schema['required'].append('place-of-inspection')
-
-        validator = Draft4Validator(schema)
-        errors = []
-        for error in validator.iter_errors(request_json):
-            # Validate JSON against schema and format error messages
-            error_message = _format_error_messages(error, sub_domain)
-            # Get element names of erroring fields if required
-            path = []
-            for element in error.path:
-                if isinstance(element, str):
-                    path.append(element)
-            errors.append((": ".join(list(filter(None, [".".join(path), error_message])))))
-        return_value = {"errors": sorted(errors)}
+        errors = validate_helper(request_json, sub_domain, request_method, primary_id)
+        return_value = {"errors": errors}
     else:
         return_value = {"errors": ['invalid sub-domain']}
     return return_value

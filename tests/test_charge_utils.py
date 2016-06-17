@@ -31,19 +31,19 @@ class TestChargeUtils(unittest.TestCase):
 
     def test_validate_json_missing_field(self):
         request_json = {"charge-type": "test",
-                        "provision": "test",
-                        "description": "test",
-                        "originating-authority": "test"}
+                        "provision": "test:123",
+                        "charge-description": "test",
+                        "originating-authorities": "test:123"}
         sub_domain = "local-land-charge"
         request_method = 'POST'
         result = charge_utils.validate_json(request_json, sub_domain, request_method)
-        self.assertEqual(result['errors'][0], "'geometry' is a required property")
+        self.assertTrue("'geometry' is a required property" in result['errors'][0])
 
     def test_validate_json_missing_extra_field_on_update(self):
         request_json = {"charge-type": "test",
-                        "provision": "test",
-                        "description": "test",
-                        "originating-authority": "test",
+                        "provision": "test:123",
+                        "charge-description": "test",
+                        "originating-authorities": "test:123",
                         "geometry": {"crs": {"properties": {"name": "EPSG:27700"}, "type": "name"},
                                      "coordinates": [[[241959.0, 52874.0], [257661.0, 52874.0],
                                                       [257661.0, 62362.0], [241959.0, 62362.0],
@@ -52,14 +52,14 @@ class TestChargeUtils(unittest.TestCase):
         request_method = 'PUT'
         primary_id = 1
         result = charge_utils.validate_json(request_json, sub_domain, request_method, primary_id)
-        self.assertEqual(result['errors'][0], "'local-land-charge' is a required property")
+        self.assertIn("'local-land-charge' is a required property", str(result['errors']))
 
     def test_validate_json_blank_inspection_reference(self):
         request_json = {"charge-type": "test",
-                        "provision": "test",
-                        "description": "test",
-                        "originating-authority": "test",
-                        "inspection-reference": "",
+                        "provision": "test:123",
+                        "charge-description": "test",
+                        "originating-authorities": "test:123",
+                        "further-information": [{"information-location": "test:123"}],
                         "geometry": {"crs": {"properties": {"name": "EPSG:27700"}, "type": "name"},
                                      "coordinates": [[[241959.0, 52874.0], [257661.0, 52874.0],
                                                       [257661.0, 62362.0], [241959.0, 62362.0],
@@ -71,10 +71,9 @@ class TestChargeUtils(unittest.TestCase):
 
     def test_validate_json_missing_place_of_inspection(self):
         request_json = {"charge-type": "test",
-                        "provision": "test",
-                        "description": "test",
-                        "originating-authority": "test",
-                        "inspection-reference": "test",
+                        "provision": "test:123",
+                        "charge-description": "test",
+                        "originating-authorities": "test:123",
                         "geometry": {"crs": {"properties": {"name": "EPSG:27700"}, "type": "name"},
                                      "coordinates": [[[241959.0, 52874.0], [257661.0, 52874.0],
                                                       [257661.0, 62362.0], [241959.0, 62362.0],
@@ -82,32 +81,14 @@ class TestChargeUtils(unittest.TestCase):
         sub_domain = "local-land-charge"
         request_method = 'POST'
         result = charge_utils.validate_json(request_json, sub_domain, request_method)
-        self.assertEqual(len(result['errors']), 1)
-        self.assertEqual(result['errors'][0], "'place-of-inspection' is a required property")
-
-    def test_validate_json_blank_place_of_inspection(self):
-        request_json = {"charge-type": "test",
-                        "provision": "test",
-                        "description": "test",
-                        "originating-authority": "test",
-                        "inspection-reference": "test",
-                        "place-of-inspection": "",
-                        "geometry": {"crs": {"properties": {"name": "EPSG:27700"}, "type": "name"},
-                                     "coordinates": [[[241959.0, 52874.0], [257661.0, 52874.0],
-                                                      [257661.0, 62362.0], [241959.0, 62362.0],
-                                                      [241959.0, 52874.0]]], "type": "Polygon"}}
-        sub_domain = "local-land-charge"
-        request_method = 'POST'
-        result = charge_utils.validate_json(request_json, sub_domain, request_method)
-        self.assertEqual(len(result['errors']), 1)
-        self.assertEqual(result['errors'][0], "place-of-inspection: must not be blank")
+        self.assertIn("'further-information' is a required property", str(result['errors']))
 
     def test_validate_json_invalid_field_type(self):
         request_json = {"local-land-charge": 1,
                         "charge-type": "test",
-                        "provision": "test",
-                        "description": "test",
-                        "originating-authority": "test",
+                        "provision": "test:123",
+                        "charge-description": "test",
+                        "originating-authorities": "test:123",
                         "geometry": {"crs": {"properties": {"name": "EPSG:27700"}, "type": "name"},
                                      "coordinates": [[[241959.0, 52874.0], [257661.0, 52874.0],
                                                       [257661.0, 62362.0], [241959.0, 62362.0],
@@ -116,14 +97,14 @@ class TestChargeUtils(unittest.TestCase):
         request_method = 'PUT'
         primary_id = 1
         result = charge_utils.validate_json(request_json, sub_domain, request_method, primary_id)
-        self.assertEqual(result['errors'][0], "local-land-charge: 1 is not of type 'string'")
+        self.assertIn("1 is not of type 'string'", str(result['errors']))
 
     def test_validate_json_primary_id_does_not_match_url(self):
         request_json = {"local-land-charge": "2",
                         "charge-type": "test",
-                        "provision": "test",
-                        "description": "test",
-                        "originating-authority": "test",
+                        "provision": "test:123",
+                        "charge-description": "test",
+                        "originating-authorities": "test:123",
                         "geometry": {"crs": {"properties": {"name": "EPSG:27700"}, "type": "name"},
                                      "coordinates": [[[241959.0, 52874.0], [257661.0, 52874.0],
                                                       [257661.0, 62362.0], [241959.0, 62362.0],
@@ -132,14 +113,14 @@ class TestChargeUtils(unittest.TestCase):
         request_method = 'PUT'
         primary_id = 1
         result = charge_utils.validate_json(request_json, sub_domain, request_method, primary_id)
-        self.assertEqual(result['errors'][0], "local-land-charge: '2' does not match '1'")
+        self.assertIn("'2' does not match '1'", str(result['errors']))
 
     def test_validate_json_remove_invalid_fields(self):
         request_json = {"fruit": "banana",
                         "charge-type": "test",
-                        "provision": "test",
-                        "description": "test",
-                        "originating-authority": "test",
+                        "provision": "test:123",
+                        "charge-description": "test",
+                        "originating-authorities": "test:123",
                         "geometry": {"crs": {"properties": {"name": "EPSG:27700"}, "type": "name"},
                                      "coordinates": [[[241959.0, 52874.0], [257661.0, 52874.0],
                                                       [257661.0, 62362.0], [241959.0, 62362.0],
@@ -147,14 +128,14 @@ class TestChargeUtils(unittest.TestCase):
         sub_domain = "local-land-charge"
         request_method = 'POST'
         result = charge_utils.validate_json(request_json, sub_domain, request_method)
-        self.assertEqual(result['errors'][0],
-                         "Additional properties are not allowed ('fruit' was unexpected)")
+        self.assertIn("Additional properties are not allowed ('fruit' was unexpected)", str(result['errors']))
 
     def test_validate_json_whitespace_value(self):
         request_json = {"charge-type": "    ",
-                        "provision": "test",
-                        "description": "test",
-                        "originating-authority": "test",
+                        "provision": "test:123",
+                        "charge-description": "test",
+                        "originating-authorities": "test:123",
+                        "further-information": [{"information-location": "test"}],
                         "geometry": {"crs": {"properties": {"name": "EPSG:27700"}, "type": "name"},
                                      "coordinates": [[[241959.0, 52874.0], [257661.0, 52874.0],
                                                       [257661.0, 62362.0], [241959.0, 62362.0],
@@ -162,13 +143,15 @@ class TestChargeUtils(unittest.TestCase):
         sub_domain = "local-land-charge"
         request_method = 'POST'
         result = charge_utils.validate_json(request_json, sub_domain, request_method)
-        self.assertEqual(result['errors'][0], "charge-type: must not be blank")
+        self.assertIn("'charge-type' must not be blank", str(result['errors']))
 
     def test_validate_json_valid_json(self):
         request_json = {"charge-type": "test",
-                        "provision": "test",
-                        "description": "test",
-                        "originating-authority": "test",
+                        "provision": "test:123",
+                        "charge-description": "test",
+                        "originating-authorities": "test:123",
+                        "further-information": [{"information-location": "test:123",
+                                                 "references": ["qwerty"]}],
                         "geometry": {"crs": {"properties": {"name": "EPSG:27700"}, "type": "name"},
                                      "coordinates": [[[241959.0, 52874.0], [257661.0, 52874.0],
                                                       [257661.0, 62362.0], [241959.0, 62362.0],
@@ -178,28 +161,44 @@ class TestChargeUtils(unittest.TestCase):
         result = charge_utils.validate_json(request_json, sub_domain, request_method)
         self.assertEqual(len(result['errors']), 0)
 
+    def test_validate_json_invalid_date(self):
+        request_json = {"charge-type": "test",
+                        "provision": "test:123",
+                        "charge-description": "test",
+                        "originating-authorities": "test:123",
+                        "creation-date": "29/02/2008",
+                        "expiration-date": "29/02/2009",
+                        "further-information": [{"information-location": "test"}],
+                        "geometry": {"crs": {"properties": {"name": "EPSG:27700"}, "type": "name"},
+                                     "coordinates": [[[241959.0, 52874.0], [257661.0, 52874.0],
+                                                      [257661.0, 62362.0], [241959.0, 62362.0],
+                                                      [241959.0, 52874.0]]], "type": "Polygon"}}
+        sub_domain = "local-land-charge"
+        request_method = 'POST'
+        result = charge_utils.validate_json(request_json, sub_domain, request_method)
+        self.assertIn("'expiration-date' is an invalid date", str(result['errors']))
+
     def test_validate_json_valid_json_with_optional_fields(self):
         request_json = {"charge-type": "test",
-                        "provision": "test",
-                        "description": "test",
-                        "originating-authority": "test",
+                        "provision": "test:123",
+                        "charge-description": "test",
+                        "originating-authorities": "test:123",
                         "geometry": {"crs": {"properties": {"name": "EPSG:27700"}, "type": "name"},
                                      "coordinates": [[[241959.0, 52874.0], [257661.0, 52874.0],
                                                       [257661.0, 62362.0], [241959.0, 62362.0],
                                                       [241959.0, 52874.0]]], "type": "Polygon"},
-                        "authority-charge-id": "test",
-                        "creation-date": "test",
-                        "expiration-date": "test",
+                        "creation-date": "01/01/2016",
+                        "expiration-date": "02/02/2016",
                         "instrument": "test",
                         "migrating-authority": "test",
-                        "old-register-part": "test",
-                        "place-of-inspection": "test",
-                        "inspection-reference": "test",
+                        "old-register-part": "1",
+                        "further-information": [{"information-location": "test:123",
+                                                 "references": ["test"]}],
                         "land-description": "test",
                         "work-particulars": "test",
                         "capacity-description": "test",
                         "compensation-paid": "test",
-                        "unique-property-reference-number": "test"
+                        "unique-property-reference-numbers": 1234
                         }
         sub_domain = "local-land-charge"
         request_method = 'POST'
@@ -218,9 +217,9 @@ class TestChargeUtils(unittest.TestCase):
         host_url = "local-land-charge.landregistry.gov.uk"
         request_method = 'POST'
         request_json = {"charge-type": "test",
-                        "provision": "test",
-                        "description": "test",
-                        "originating-authority": "test",
+                        "provision": "test:123",
+                        "charge-description": "test",
+                        "originating-authorities": "test:123",
                         "geometry": {"crs": {"properties": {"name": "EPSG:27700"},
                                              "type": "name"},
                                      "coordinates": [[[241959.0, 52874.0], [257661.0, 52874.0],
@@ -241,9 +240,9 @@ class TestChargeUtils(unittest.TestCase):
         host_url = "local-land-charge.landregistry.gov.uk"
         request_method = 'POST'
         request_json = {"charge-type": "test",
-                        "provision": "test",
-                        "description": "test",
-                        "originating-authority": "test",
+                        "provision": "test:123",
+                        "charge-description": "test",
+                        "originating-authorities": "test:123",
                         "geometry": {"crs": {"properties": {"name": "EPSG:27700"},
                                              "type": "name"},
                                      "coordinates": [[[241959.0, 52874.0], [257661.0, 52874.0],
@@ -261,9 +260,9 @@ class TestChargeUtils(unittest.TestCase):
         host_url = "local-land-charge.landregistry.gov.uk"
         request_method = 'POST'
         request_json = {"charge-type": "test",
-                        "provision": "test",
-                        "description": "test",
-                        "originating-authority": "test",
+                        "provision": "test:123",
+                        "charge-description": "test",
+                        "originating-authorities": "test:123",
                         "geometry": {"crs": {"properties": {"name": "EPSG:27700"},
                                              "type": "name"},
                                      "coordinates": [[[241959.0, 52874.0], [257661.0, 52874.0],
@@ -283,9 +282,9 @@ class TestChargeUtils(unittest.TestCase):
         host_url = "local-land-charge.landregistry.gov.uk"
         request_method = 'POST'
         request_json = {"charge-type": "test",
-                        "provision": "test",
-                        "description": "test",
-                        "originating-authority": "test",
+                        "provision": "test:123",
+                        "charge-description": "test",
+                        "originating-authorities": "test:123",
                         "geometry": {"crs": {"properties": {"name": "EPSG:27700"},
                                              "type": "name"},
                                      "coordinates": [[[241959.0, 52874.0], [257661.0, 52874.0],
@@ -306,9 +305,9 @@ class TestChargeUtils(unittest.TestCase):
         request_method = 'PUT'
         request_json = {"local-land-charge": "48",
                         "charge-type": "test",
-                        "provision": "test",
-                        "description": "test",
-                        "originating-authority": "test",
+                        "provision": "test:123",
+                        "charge-description": "test",
+                        "originating-authorities": "test:123",
                         "geometry": {"crs": {"properties": {"name": "EPSG:27700"},
                                              "type": "name"},
                                      "coordinates": [[[241959.0, 52874.0], [257661.0, 52874.0],
@@ -388,7 +387,7 @@ class TestChargeUtils(unittest.TestCase):
 
 post_response = {
     "charge-type": "test",
-    "description": "test",
+    "charge-description": "test",
     "entry-number": "53",
     "entry-timestamp": "2016-05-19T10:58:27.568286",
     "geometry": {
@@ -426,14 +425,14 @@ post_response = {
     },
     "item-hash": "sha-256:19acd35ddf2b64bb8f3840bdcb54bc6bc9d3a1eb1c42a60c63cbbc3de6a3dc1e",
     "local-land-charge": "48",
-    "originating-authority": "test",
-    "provision": "test"
+    "originating-authorities": "test:123",
+    "provision": "test:123"
 }
 
 get_response_many = [
     {
         "charge-type": "test",
-        "description": "test",
+        "charge-description": "test",
         "entry-number": "3",
         "entry-timestamp": "2016-05-16T16:20:51.279816",
         "geometry": {
@@ -471,12 +470,12 @@ get_response_many = [
         },
         "item-hash": "sha-256:34c70397dcd1d85af72203a9804951dcaaf09cb3800f3a4009da07dc7c044e4f",
         "local-land-charge": "2",
-        "originating-authority": "test",
-        "provision": "test"
+        "originating-authorities": "test:123",
+        "provision": "test:123"
     },
     {
         "charge-type": "test",
-        "description": "test",
+        "charge-description": "test",
         "entry-number": "4",
         "entry-timestamp": "2016-05-16T16:20:55.848333",
         "geometry": {
@@ -514,15 +513,15 @@ get_response_many = [
         },
         "item-hash": "sha-256:b76d8fd679d335efee91b80bfb13871e77ec4f9e791a3875edd4fdce2bc1c593",
         "local-land-charge": "3",
-        "originating-authority": "test",
-        "provision": "test"
+        "originating-authorities": "test:123",
+        "provision": "test:123"
     }
 ]
 
 
 get_response_one = {
     "charge-type": "test",
-    "description": "test",
+    "charge-description": "test",
     "entry-number": "4",
     "entry-timestamp": "2016-05-16T16:20:55.848333",
     "geometry": {
@@ -560,6 +559,6 @@ get_response_one = {
     },
     "item-hash": "sha-256:b76d8fd679d335efee91b80bfb13871e77ec4f9e791a3875edd4fdce2bc1c593",
     "local-land-charge": "3",
-    "originating-authority": "test",
-    "provision": "test"
+    "originating-authorities": "test:123",
+    "provision": "test:123"
 }
