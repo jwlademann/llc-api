@@ -62,7 +62,7 @@
                     {
                         "name": "primary_id",
                         "in": "path",
-                        "description": "Unique reference of the Statutory Provision record.",
+                        "description": "Unique reference of the Registering Authority record.",
                         "required": true,
                         "type": "string"
                     }
@@ -99,7 +99,7 @@
                     {
                         "name": "primary_id",
                         "in": "path",
-                        "description": "Unique reference of the Statutory Provision record.",
+                        "description": "Unique reference of the Registering Authority record.",
                         "required": true,
                         "type": "string"
                     },
