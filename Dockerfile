@@ -6,4 +6,4 @@ COPY . /srv/llc-api
 
 RUN pip install -r requirements.txt
 
-CMD ["python", "run.py"]
+CMD ["gunicorn", "application.views:app", "-w", "3"]
