@@ -257,14 +257,14 @@
                 "creation-date": {
                     "description": "The date a Local Land Charge first came into effect. This could be the date of the instrument, the date of the decision etc.",
                     "type": "string",
-                    "format": "date",
-                    "pattern": "^\\d{4}-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|3[01])$"
+                    "pattern": "^\\d{4}-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|3[01])$",
+                    "format": "date"
                 },
                 "expiration-date": {
                     "description": "The date on which a Land Interest in respect of a local land charge ceases to exist.",
                     "type": "string",
-                    "format": "date",
-                    "pattern": "^\\d{4}-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|3[01])$"
+                    "pattern": "^\\d{4}-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|3[01])$",
+                    "format": "date"
                 },
                 "instrument": {
                     "description": "The document giving rise to a Local Land Charge e.g. charge, deed, agreement etc.",
