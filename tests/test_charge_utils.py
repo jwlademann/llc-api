@@ -1,14 +1,17 @@
-from application.views import app
-from application import charge_utils
 import json
-import mock
 import os
-import requests
 import unittest
+
+import requests
 import werkzeug
+
+from application import charge_utils
+from application.views import app
+import mock
 
 
 class FakeResponse(requests.Response):
+
     def __init__(self, content='', status_code=200):
         super(FakeResponse, self).__init__()
         self._content = content
@@ -187,8 +190,8 @@ class TestChargeUtils(unittest.TestCase):
                                      "coordinates": [[[241959.0, 52874.0], [257661.0, 52874.0],
                                                       [257661.0, 62362.0], [241959.0, 62362.0],
                                                       [241959.0, 52874.0]]], "type": "Polygon"},
-                        "creation-date": "01/01/2016",
-                        "expiration-date": "02/02/2016",
+                        "creation-date": "2016-01-01",
+                        "expiration-date": "2016-02-02",
                         "instrument": "test",
                         "migrating-authority": "test",
                         "old-register-part": "1",

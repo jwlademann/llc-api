@@ -1,12 +1,15 @@
-from application import app
-from flask import abort
-from jsonschema.validators import validator_for
-from datetime import datetime
-import requests
 import copy
-import re
-import os
+from datetime import datetime
 import json
+import os
+import re
+
+from flask import abort
+import requests
+
+from application import app
+from jsonschema.validators import validator_for
+
 
 register_details = {
     "local-land-charge": {"filename": "local-land-charge-swagger.json",
@@ -72,7 +75,7 @@ def validate_date(errors, json_to_validate):
     for date in dates:
         try:
             if date in json_to_validate:
-                datetime.strptime(json_to_validate[date], "%d/%m/%Y")
+                datetime.strptime(json_to_validate[date], "%Y-%m-%d")
         except ValueError:
             error_message = "'%s' " % date + "is an invalid date"
             errors.append("Problem %s: %s" % (len(errors) + 1, error_message))
