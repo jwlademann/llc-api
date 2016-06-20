@@ -206,7 +206,6 @@ class TestChargeUtils(unittest.TestCase):
         sub_domain = "local-land-charge"
         request_method = 'POST'
         result = charge_utils.validate_json(request_json, sub_domain, request_method)
-        print(result['errors'])
         self.assertEqual(len(result['errors']), 0)
 
     def test_process_update_request_invalid_sub_domain(self):
