@@ -35,7 +35,7 @@ def _format_error_messages(error, sub_domain):
         error_message = "must not be blank"
 
     # Format error message for Curie regex to be more user friendly
-    if " does not match '\\\\S+:\\\\d+'" in error.message:
+    if " does not match '\\\\S+:\\\\S+'" in error.message:
         error_message = "must be specified as a Curie e.g. statutory-provision:1234"
 
     # For primary key validation remove start/end of line regex characters from error message for clarity
