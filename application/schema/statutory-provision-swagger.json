@@ -133,14 +133,14 @@
         "Statutory-Provision": {
             "type": "object",
             "required": [
-                "statutory-provision-description"
+                "text"
             ],
             "properties": {
                 "statutory-provision": {
                     "type": "string",
                     "description": "NOTE: Unique indentifier for this charge. Do not provide when creating a charge (POST request). Only required for PUT requests"
                 },
-                "statutory-provision-description": {
+                "text": {
                     "description": "The legal provisions which give authority to Local Land Charges.",
                     "type": "string",
                     "pattern": "\\S+"
