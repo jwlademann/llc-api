@@ -453,7 +453,7 @@ class TestChargeUtils(unittest.TestCase):
                                                       [241959.0, 52874.0]]], "type": "Polygon"}}
         charge_utils.validate_statutory_provisions(errors, request_json)
         self.assertEqual(len(errors), 1)
-        self.assertIn("At least", errors[0])
+        self.assertIn("At least one of 'statutory-provisions' or 'instrument' must be supplied", errors[0])
 
 post_response = {
     "charge-type": "test",
