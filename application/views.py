@@ -38,14 +38,14 @@ def get_charge(primary_id):
 def create_charge():
     sub_domain = request.headers['Host'].split('.')[0]
     if sub_domain in charge_utils.register_details:
-        if sub_domain == "local-land-charge":
-            try:
-                if 'geometry' in request.get_json():
-                    geometry = json.loads(request.get_json()['geometry'])
-                    request.get_json()['geometry'] = geometry
-            except (json.JSONDecodeError, TypeError) as e:
-                app.logger.warn('Could not decode json: ' + str(e))
-                pass  # Geometry causing these errors will be caught by validation and returned to the user
+        # if sub_domain == "local-land-charge":
+        #     try:
+        #         if 'geometry' in request.get_json():
+        #             geometry = json.loads(request.get_json()['geometry'])
+        #             request.get_json()['geometry'] = geometry
+        #     except (json.JSONDecodeError, TypeError) as e:
+        #         app.logger.warn('Could not decode json: ' + str(e))
+        #         pass  # Geometry causing these errors will be caught by validation and returned to the user
         result = charge_utils.validate_json(request.get_json(), sub_domain, request.method)
         if result['errors']:
             # If there are errors add array to JSON and return
