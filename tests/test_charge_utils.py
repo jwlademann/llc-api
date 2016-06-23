@@ -402,6 +402,58 @@ class TestChargeUtils(unittest.TestCase):
         self.assertEqual(result[1], 201)
         self.assertEqual(json.loads(result[0])['charge-type'], "test")
 
+    @mock.patch('application.charge_utils.process_get_request')
+    def test_validate_provisions_invalid(self, mock_get):
+        errors = []
+        request_json = {"charge-type": "test",
+                        "statutory-provisions": ["test:321", "test:987"],
+                        "charge-description": "test",
+                        "originating-authorities": ["test:123"],
+                        "further-information": [{"information-location": "test:123",
+                                                 "references": ["qwerty"]}],
+                        "geometry": {"crs": {"properties": {"name": "EPSG:27700"}, "type": "name"},
+                                     "coordinates": [[[241959.0, 52874.0], [257661.0, 52874.0],
+                                                      [257661.0, 62362.0], [241959.0, 62362.0],
+                                                      [241959.0, 52874.0]]], "type": "Polygon"}}
+        mock_get.return_value = (provision_land_comp, 200)
+        charge_utils.validate_statutory_provisions(errors, request_json)
+        self.assertEqual(len(errors), 2)
+        self.assertIn("test:321 must be supplied exclusively", errors[0])
+        self.assertIn("test:987 must be supplied exclusively", errors[1])
+
+    @mock.patch('application.charge_utils.process_get_request')
+    def test_validate_provisions_not_found(self, mock_get):
+        errors = []
+        request_json = {"charge-type": "test",
+                        "statutory-provisions": ["test:321", "test:987"],
+                        "charge-description": "test",
+                        "originating-authorities": ["test:123"],
+                        "further-information": [{"information-location": "test:123",
+                                                 "references": ["qwerty"]}],
+                        "geometry": {"crs": {"properties": {"name": "EPSG:27700"}, "type": "name"},
+                                     "coordinates": [[[241959.0, 52874.0], [257661.0, 52874.0],
+                                                      [257661.0, 62362.0], [241959.0, 62362.0],
+                                                      [241959.0, 52874.0]]], "type": "Polygon"}}
+        mock_get.return_value = (provision_land_comp, 404)
+        charge_utils.validate_statutory_provisions(errors, request_json)
+        self.assertEqual(len(errors), 2)
+        self.assertIn("Could not find record in statutory-provision", errors[0])
+        self.assertIn("Could not find record in statutory-provision", errors[1])
+
+    def test_validate_provisions_no_instrument(self):
+        errors = []
+        request_json = {"charge-type": "test",
+                        "charge-description": "test",
+                        "originating-authorities": ["test:123"],
+                        "further-information": [{"information-location": "test:123",
+                                                 "references": ["qwerty"]}],
+                        "geometry": {"crs": {"properties": {"name": "EPSG:27700"}, "type": "name"},
+                                     "coordinates": [[[241959.0, 52874.0], [257661.0, 52874.0],
+                                                      [257661.0, 62362.0], [241959.0, 62362.0],
+                                                      [241959.0, 52874.0]]], "type": "Polygon"}}
+        charge_utils.validate_statutory_provisions(errors, request_json)
+        self.assertEqual(len(errors), 1)
+        self.assertIn("At least", errors[0])
 
 post_response = {
     "charge-type": "test",
@@ -579,4 +631,16 @@ get_response_one = {
     "local-land-charge": "3",
     "originating-authorities": "test:123",
     "provision": "test:123"
+}
+
+provision_land_comp = '{"entry-number": "1", "entry-timestamp": "2016-06-23T10:44:22.515174", ' \
+                      '"item-hash": "sha-256:cc53bb1ec3cc2facbdf4f3f064e08fbd2620a3452f16ee2723a030cded15cbe3", ' \
+                      '"statutory-provision": "1", "text": "Land Compensation"}'
+
+provision_not_land_comp = {
+    "entry-number": "2",
+    "entry-timestamp": "2016-06-23T10:48:49.603961",
+    "item-hash": "sha-256:d68d21babfda2646b1516e70e047ded0555b76275937f18371458067f28ed687",
+    "statutory-provision": "2",
+    "text": "Something else"
 }

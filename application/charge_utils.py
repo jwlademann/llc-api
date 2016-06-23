@@ -81,18 +81,15 @@ def validate_statutory_provisions(errors, json_to_validate):
                 result = process_get_request(app.config['SP_API_URI'], curie[1])
                 if result[1] == 200:
                     provision_json = json.loads(result[0])
-                    app.logger.info(provision_json)
-                    app.logger.info(provision_json.__class__)
                     if "land compensation" in provision_json['text'].lower():
                         error_message = provision + " must be supplied exclusively."
-                        errors.append("Problem %s: %s" % (len(errors) +1, error_message))
+                        errors.append("Problem %s: %s" % (len(errors) + 1, error_message))
                 else:
                     error_message = "Could not find record in statutory-provision register."
-                    errors.append("Problem %s: %s" % (len(errors) +1, error_message))
-    elif not "instrument" in json_to_validate:
+                    errors.append("Problem %s: %s" % (len(errors) + 1, error_message))
+    elif "instrument" not in json_to_validate:
         error_message = "At least one of 'statutory-provisions' or 'instrument' must be supplied."
         errors.append("Problem %s: %s" % (len(errors) + 1, error_message))
-
 
 
 def validate_date(errors, json_to_validate):
