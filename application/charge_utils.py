@@ -236,3 +236,32 @@ def process_update_request(host_url, request_method, request_json, primary_id=No
         return_value = (json.dumps({"errors": ['invalid sub-domain']}), 400,
                         {"Content-Type": "application/json"})
     return return_value
+
+
+def process_geometry_search(host_url, request_json, function='intersects'):
+    sub_domain = host_url.split('.')[0]
+    if sub_domain == 'local-land-charge':
+        try:
+            # Decide which endpoint and request method to use based on incoming request method
+            register_url = (app.config['LLC_REGISTER_URL'] + "/" +
+                            register_details[sub_domain]['register_name'] + "/records/geometry/" + function)
+            response = requests.post(register_url, json=request_json['geometry'])
+            response.raise_for_status()
+
+            # Construct JSON response containing generated record and the URL to use to retrieve
+            # the record in the future.
+            json_response = json.loads(response.text)
+            return_value = (json.dumps(json_response, sort_keys=True), response.status_code,
+                            {"Content-Type": "application/json"})
+        except requests.HTTPError as e:
+            if e.response.text.startswith("<!DOCTYPE HTML"):
+                abort(500)
+            else:
+                return_value = (json.dumps({"errors": [e.response.text]}), e.response.status_code,
+                                {"Content-Type": "application/json"})
+        except requests.ConnectionError:
+            abort(500)
+    else:
+        return_value = (json.dumps({"errors": ['invalid sub-domain']}), 400,
+                        {"Content-Type": "application/json"})
+    return return_value

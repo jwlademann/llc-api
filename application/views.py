@@ -84,3 +84,24 @@ def update_charge(primary_id):
                         {"Content-Type": "application/json"})
 
     return return_value
+
+
+@app.route("/records/geometry/<function>", methods=["POST"])
+def geometry_search(function):
+    sub_domain = request.headers['Host'].split('.')[0]
+    if sub_domain == 'local-land-charge':
+        # result = charge_utils.validate_search_geojson(request.get_json(), sub_domain, request.method)
+        # if result['errors']:
+        #     # If there are errors add array to JSON and return
+        #     errors = {"errors": result['errors']}
+        #     return_value = (json.dumps(errors, sort_keys=True), 400,
+        #                     {"Content-Type": "application/json"})
+        # else:
+        return_value = charge_utils.process_geometry_search(request.headers['Host'],
+                                                                request.get_json(),
+                                                                function)
+    else:
+        return_value = (json.dumps({"errors": ['invalid sub-domain']}), 400,
+                        {"Content-Type": "application/json"})
+
+    return return_value
