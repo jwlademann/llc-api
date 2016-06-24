@@ -66,7 +66,7 @@ def validate_helper(json_to_validate, sub_domain, request_method, primary_id, se
     for count, error in enumerate(error_list, start=1):
         errors.append("Problem %s: %s" % (count, _format_error_messages(error, sub_domain)))
 
-    if sub_domain == "local-land-charge":
+    if sub_domain == "local-land-charge" and not search:
         validate_statutory_provisions(errors, json_to_validate)
 
     validate_date(errors, json_to_validate)
