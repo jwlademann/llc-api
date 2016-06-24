@@ -57,7 +57,8 @@ class TestChargeUtils(unittest.TestCase):
         result = charge_utils.validate_json(request_json, sub_domain, request_method, primary_id)
         self.assertIn("'local-land-charge' is a required property", str(result['errors']))
 
-    def test_validate_json_blank_inspection_reference(self):
+    @mock.patch('application.charge_utils.process_get_request')
+    def test_validate_json_blank_inspection_reference(self, mock_get):
         request_json = {"charge-type": "test",
                         "statutory-provisions": ["test:321"],
                         "charge-description": "test",
@@ -67,6 +68,7 @@ class TestChargeUtils(unittest.TestCase):
                                      "coordinates": [[[241959.0, 52874.0], [257661.0, 52874.0],
                                                       [257661.0, 62362.0], [241959.0, 62362.0],
                                                       [241959.0, 52874.0]]], "type": "Polygon"}}
+        mock_get.return_value = (provision_not_land_comp, 200)
         sub_domain = "local-land-charge"
         request_method = 'POST'
         result = charge_utils.validate_json(request_json, sub_domain, request_method)
@@ -163,7 +165,8 @@ class TestChargeUtils(unittest.TestCase):
         result = charge_utils.validate_json(request_json, sub_domain, request_method)
         self.assertIn("'charge-type' must not be blank", str(result['errors']))
 
-    def test_validate_json_valid_json(self):
+    @mock.patch('application.charge_utils.process_get_request')
+    def test_validate_json_valid_json(self, mock_get):
         request_json = {"charge-type": "test",
                         "statutory-provisions": ["test:321"],
                         "charge-description": "test",
@@ -174,6 +177,7 @@ class TestChargeUtils(unittest.TestCase):
                                      "coordinates": [[[241959.0, 52874.0], [257661.0, 52874.0],
                                                       [257661.0, 62362.0], [241959.0, 62362.0],
                                                       [241959.0, 52874.0]]], "type": "Polygon"}}
+        mock_get.return_value = (provision_not_land_comp, 200)
         sub_domain = "local-land-charge"
         request_method = 'POST'
         result = charge_utils.validate_json(request_json, sub_domain, request_method)
@@ -196,7 +200,8 @@ class TestChargeUtils(unittest.TestCase):
         result = charge_utils.validate_json(request_json, sub_domain, request_method)
         self.assertIn("'expiration-date' is an invalid date", str(result['errors']))
 
-    def test_validate_json_valid_json_with_optional_fields(self):
+    @mock.patch('application.charge_utils.process_get_request')
+    def test_validate_json_valid_json_with_optional_fields(self, mock_get):
         request_json = {"charge-type": "test",
                         "statutory-provisions": ["test:321"],
                         "charge-description": "test",
@@ -218,6 +223,7 @@ class TestChargeUtils(unittest.TestCase):
                         "compensation-paid": "test",
                         "unique-property-reference-numbers": [1234]
                         }
+        mock_get.return_value = (provision_not_land_comp, 200)
         sub_domain = "local-land-charge"
         request_method = 'POST'
         result = charge_utils.validate_json(request_json, sub_domain, request_method)
@@ -418,8 +424,8 @@ class TestChargeUtils(unittest.TestCase):
         mock_get.return_value = (provision_land_comp, 200)
         charge_utils.validate_statutory_provisions(errors, request_json)
         self.assertEqual(len(errors), 2)
-        self.assertIn("test:321 must be supplied exclusively", errors[0])
-        self.assertIn("test:987 must be supplied exclusively", errors[1])
+        self.assertIn("test:321 is a Land Compensation and must be supplied exclusively", errors[0])
+        self.assertIn("test:987 is a Land Compensation and must be supplied exclusively", errors[1])
 
     @mock.patch('application.charge_utils.process_get_request')
     def test_validate_provisions_not_found(self, mock_get):
@@ -637,10 +643,6 @@ provision_land_comp = '{"entry-number": "1", "entry-timestamp": "2016-06-23T10:4
                       '"item-hash": "sha-256:cc53bb1ec3cc2facbdf4f3f064e08fbd2620a3452f16ee2723a030cded15cbe3", ' \
                       '"statutory-provision": "1", "text": "Land Compensation"}'
 
-provision_not_land_comp = {
-    "entry-number": "2",
-    "entry-timestamp": "2016-06-23T10:48:49.603961",
-    "item-hash": "sha-256:d68d21babfda2646b1516e70e047ded0555b76275937f18371458067f28ed687",
-    "statutory-provision": "2",
-    "text": "Something else"
-}
+provision_not_land_comp = '{"entry-number": "2", "entry-timestamp": "2016-06-23T10:48:49.603961",' \
+                          ' "item-hash": "sha-256:d68d21babfda2646b1516e70e047ded0555b76275937f18371458067f28ed687", ' \
+                          '"statutory-provision": "2", "text": "Something else"}'
