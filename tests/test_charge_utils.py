@@ -32,6 +32,16 @@ class TestChargeUtils(unittest.TestCase):
         result = charge_utils.validate_json(request_json, sub_domain, request_method)
         self.assertEqual(result['errors'][0], "invalid sub-domain")
 
+    def test_validate_geometry_search_json(self):
+        request_json = {"geometry": {"crs": {"properties": {"name": "EPSG:27700"}, "type": "name"},
+                                     "coordinates": [[[241959.0, 52874.0], [257661.0, 52874.0],
+                                                      [257661.0, 62362.0], [241959.0, 62362.0],
+                                                      [241959.0, 52874.0]]], "type": "Polygon"}}
+        sub_domain = "local-land-charge"
+        request_method = 'POST'
+        result = charge_utils.validate_json(request_json, sub_domain, request_method, search=True)
+        self.assertEqual(len(result['errors']), 0)
+
     def test_validate_json_missing_field(self):
         request_json = {"charge-type": "test",
                         "statutory-provision": "test:123",
