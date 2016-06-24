@@ -90,14 +90,14 @@ def update_charge(primary_id):
 def geometry_search(function):
     sub_domain = request.headers['Host'].split('.')[0]
     if sub_domain == 'local-land-charge':
-        # result = charge_utils.validate_search_geojson(request.get_json(), sub_domain, request.method)
-        # if result['errors']:
-        #     # If there are errors add array to JSON and return
-        #     errors = {"errors": result['errors']}
-        #     return_value = (json.dumps(errors, sort_keys=True), 400,
-        #                     {"Content-Type": "application/json"})
-        # else:
-        return_value = charge_utils.process_geometry_search(request.headers['Host'],
+        result = charge_utils.validate_json(request.get_json(), sub_domain, request.method, search=True)
+        if result['errors']:
+            # If there are errors add array to JSON and return
+            errors = {"errors": result['errors']}
+            return_value = (json.dumps(errors, sort_keys=True), 400,
+                            {"Content-Type": "application/json"})
+        else:
+          return_value = charge_utils.process_geometry_search(request.headers['Host'],
                                                                 request.get_json(),
                                                                 function)
     else:
