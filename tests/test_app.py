@@ -240,6 +240,51 @@ class TestRoutes(unittest.TestCase):
         self.assertEqual(response_json['href'], "local-land-charge.my_url.gov.uk/record/48")
         self.assertEqual(response_json['record'], post_response)
 
+    @mock.patch('application.charge_utils.validate_json')
+    @mock.patch('application.charge_utils.process_geometry_search')
+    def test_geometry_search_success(self, mock_process_geometry_search, mock_validate_json):
+        data = {
+            "geometry": '{"crs": {"properties": {"name": "EPSG:27700"}, "type": "name"}, '
+            '"coordinates": [257661.0, 52874.0], "type": "Point"}'
+        }
+        mock_validate_json.return_value = {"errors": []}
+        mock_process_geometry_search.return_value = (
+            json.dumps(search_result_many),
+            201, {"Content-Type": "application/json"}
+        )
+
+        response = self.app.post('/records/geometry/intersect', data=json.dumps(data),
+                                 headers={"Host": "local-land-charge.my_url.gov.uk",
+                                          "Content-Type": "application/json"})
+        self.assertEqual(response.status_code, 201)
+        response_json = json.loads(response.data.decode(response.charset))
+        self.assertEqual(response_json, search_result_many)
+
+    @mock.patch('application.charge_utils.validate_json')
+    @mock.patch('application.charge_utils.process_geometry_search')
+    def test_geometry_search_validation_fail(self, mock_process_geometry_search, mock_validate_json):
+        data = {
+            "geometry": '{"crs": {"properties": {"name": "EPSG:27700"}, "type": "name"}, '
+            '"coordinates": [257661.0, 52874.0], "type": "Point"}'
+        }
+        mock_validate_json.return_value = {"errors": ["register validation error"]}
+        mock_process_geometry_search.return_value = (
+            json.dumps({"errors": ["register validation error"]}),
+            400, {"Content-Type": "application/json"}
+        )
+
+        response = self.app.post('/records/geometry/intersect', data=json.dumps(data),
+                                 headers={"Host": "local-land-charge.my_url.gov.uk",
+                                          "Content-Type": "application/json"})
+        self.assertEqual(response.status_code, 400)
+        response_json = json.loads(response.data.decode(response.charset))
+        self.assertEqual(response_json['errors'][0], "register validation error")
+
+    def test_geometry_search_invalid_sub_domain(self):
+        response = self.app.post('/records/geometry/intersect')
+        self.assertEqual(response.status_code, 400)
+        response_json = json.loads(response.data.decode(response.charset))
+        self.assertEqual(response_json['errors'][0], 'invalid sub-domain')
 
 post_response = {
     "charge-type": "test",
@@ -416,4 +461,111 @@ get_response_one = {
     "local-land-charge": "3",
     "originating-authority": "test",
     "provision": "test"
+}
+
+search_result_many = {
+  "3202": {
+    "charge-type": "type c",
+    "description": "Plot 196",
+    "entry-number": "3202",
+    "entry-timestamp": "2016-06-21T10:25:03.902929",
+    "further-information": [
+      {
+        "information-location": "further-information-location:5",
+        "references": [
+          "PLA/196"
+        ]
+      }
+    ],
+    "geometry": {
+      "coordinates": [
+        [
+          [
+            293518.5,
+            91099.2
+          ],
+          [
+            293785.0,
+            91099.2
+          ],
+          [
+            293785.0,
+            91267.4
+          ],
+          [
+            293518.5,
+            91267.4
+          ],
+          [
+            293518.5,
+            91099.2
+          ]
+        ]
+      ],
+      "crs": {
+        "properties": {
+          "name": "EPSG:27700"
+        },
+        "type": "name"
+      },
+      "type": "Polygon"
+    },
+    "instrument": "Deed",
+    "item-hash": "sha-256:f21568f065862a93e19d0f7ebc9baa0da6240e104a830175fce752d043444f00",
+    "local-land-charge": "3202",
+    "originating-authority": "llc-registering-authority:5",
+    "provision": "statutory-provision:665"
+  },
+  "3932": {
+    "charge-type": "type d",
+    "description": "Plot 926",
+    "entry-number": "3932",
+    "entry-timestamp": "2016-06-21T10:25:13.849768",
+    "further-information": [
+      {
+        "information-location": "further-information-location:5",
+        "references": [
+          "PLA/926"
+        ]
+      }
+    ],
+    "geometry": {
+      "coordinates": [
+        [
+          [
+            293518.5,
+            91099.2
+          ],
+          [
+            294318.0,
+            91099.2
+          ],
+          [
+            294318.0,
+            91603.8
+          ],
+          [
+            293518.5,
+            91603.8
+          ],
+          [
+            293518.5,
+            91099.2
+          ]
+        ]
+      ],
+      "crs": {
+        "properties": {
+          "name": "EPSG:27700"
+        },
+        "type": "name"
+      },
+      "type": "Polygon"
+    },
+    "instrument": "Deed",
+    "item-hash": "sha-256:c6665f4d48e220b0ed65f393289014666733b99e6f5161192f51aa563a7d4372",
+    "local-land-charge": "3932",
+    "originating-authority": "llc-registering-authority:5",
+    "provision": "statutory-provision:689"
+  }
 }
