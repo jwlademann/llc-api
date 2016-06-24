@@ -26,6 +26,8 @@ register_details = {
                             "register_name": "statutory-provision"}
 }
 
+SEARCH_DEFININTION = "Search-Criteria"
+
 
 def _format_error_messages(error, sub_domain):
     error_message = error.message
@@ -55,9 +57,9 @@ def _format_error_messages(error, sub_domain):
     return " ".join(list(filter(None, [element_id, error_message])))
 
 
-def validate_helper(json_to_validate, sub_domain, request_method, primary_id):
+def validate_helper(json_to_validate, sub_domain, request_method, primary_id, search):
     errors = []
-    validator = _create_llc_validator(sub_domain, request_method, primary_id)
+    validator = _create_llc_validator(sub_domain, request_method, primary_id, search)
     error_list = sorted(validator.iter_errors(json_to_validate),
                         key=str, reverse=True)
 
@@ -110,12 +112,15 @@ def get_swagger_file(sub_domain):
     return load_json_file(os.getcwd() + "/application/schema/%s" % register_details[sub_domain]['filename'])
 
 
-def load_json_schema(sub_domain):
+def load_json_schema(sub_domain, search):
     swagger = get_swagger_file(sub_domain)
 
     definitions = swagger["definitions"]
 
-    record_definition = definitions[register_details[sub_domain]['definition_name']]
+    if search:
+        record_definition = definitions[SEARCH_DEFININTION]
+    else:
+        record_definition = definitions[register_details[sub_domain]['definition_name']]
 
     record = {
         "definitions": definitions,
@@ -128,22 +133,23 @@ def load_json_schema(sub_domain):
     return record
 
 
-def _create_llc_validator(sub_domain, request_method, primary_id):
-    schema = copy.deepcopy(load_json_schema(sub_domain))
+def _create_llc_validator(sub_domain, request_method, primary_id, search):
+    schema = copy.deepcopy(load_json_schema(sub_domain, search))
 
-    if request_method == 'PUT':
-        # If it's a PUT request consider it an update. This requires the primary ID value to
-        # be specified in the JSON. This must match the vale provided in the URL endpoint so
-        # dynamically alter the schema to make the field mandatory and use regex to make sure
-        # the values match.
-        schema['properties'][register_details[sub_domain]['register_name']] = {
-            "type": "string",
-            "pattern": "^{}$".format(primary_id)
-        }
-        schema['required'].append(register_details[sub_domain]['register_name'])
-    elif request_method == 'POST':
-        # If POST request remove 'local-land-charge' from properties as it shouldn't be provided
-        schema['properties'].pop(register_details[sub_domain]['register_name'])
+    if not search:
+        if request_method == 'PUT':
+            # If it's a PUT request consider it an update. This requires the primary ID value to
+            # be specified in the JSON. This must match the vale provided in the URL endpoint so
+            # dynamically alter the schema to make the field mandatory and use regex to make sure
+            # the values match.
+            schema['properties'][register_details[sub_domain]['register_name']] = {
+                "type": "string",
+                "pattern": "^{}$".format(primary_id)
+            }
+            schema['required'].append(register_details[sub_domain]['register_name'])
+        elif request_method == 'POST':
+            # If POST request remove 'local-land-charge' from properties as it shouldn't be provided
+            schema['properties'].pop(register_details[sub_domain]['register_name'])
 
     validator = validator_for(schema)
     validator.check_schema(schema)
@@ -158,7 +164,6 @@ def load_json_file(file_path):
 
 
 def process_get_request(host_url, primary_id=None, resolve='0'):
-
     sub_domain = host_url.split('.')[0]
     if sub_domain in register_details:
         try:
@@ -190,9 +195,9 @@ def process_get_request(host_url, primary_id=None, resolve='0'):
     return return_value
 
 
-def validate_json(request_json, sub_domain, request_method, primary_id=None):
+def validate_json(request_json, sub_domain, request_method, primary_id=None, search=False):
     if sub_domain in register_details:
-        errors = validate_helper(request_json, sub_domain, request_method, primary_id)
+        errors = validate_helper(request_json, sub_domain, request_method, primary_id, search)
         return_value = {"errors": errors}
     else:
         return_value = {"errors": ['invalid sub-domain']}
@@ -245,7 +250,9 @@ def process_geometry_search(host_url, request_json, function='intersects'):
             # Decide which endpoint and request method to use based on incoming request method
             register_url = (app.config['LLC_REGISTER_URL'] + "/" +
                             register_details[sub_domain]['register_name'] + "/records/geometry/" + function)
+
             response = requests.post(register_url, json=request_json['geometry'])
+
             response.raise_for_status()
 
             # Construct JSON response containing generated record and the URL to use to retrieve
