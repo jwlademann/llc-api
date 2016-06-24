@@ -97,7 +97,7 @@ def geometry_search(function):
             return_value = (json.dumps(errors, sort_keys=True), 400,
                             {"Content-Type": "application/json"})
         else:
-          return_value = charge_utils.process_geometry_search(request.headers['Host'],
+            return_value = charge_utils.process_geometry_search(request.headers['Host'],
                                                                 request.get_json(),
                                                                 function)
     else:
