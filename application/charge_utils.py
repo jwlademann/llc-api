@@ -87,7 +87,7 @@ def validate_statutory_provisions(errors, json_to_validate):
                 else:
                     error_message = "Could not find record in statutory-provision register."
                     errors.append("Problem %s: %s" % (len(errors) + 1, error_message))
-            except IndexError as e:
+            except IndexError:
                 app.logger.warn("Curie was not valid.")
     elif "instrument" not in json_to_validate:
         error_message = "At least one of 'statutory-provisions' or 'instrument' must be supplied."
