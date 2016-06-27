@@ -512,7 +512,6 @@ class TestChargeUtils(unittest.TestCase):
 
     @mock.patch('application.charge_utils.requests.post', side_effect=requests.ConnectionError())
     def test_process_geometry_search_connection_error(self, mock_post):
-        pass
         host_url = "local-land-charge.landregistry.gov.uk"
         request_json = {
             "geometry": '{"crs": {"properties": {"name": "EPSG:27700"}, "type": "name"}, '
