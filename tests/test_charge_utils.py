@@ -32,6 +32,16 @@ class TestChargeUtils(unittest.TestCase):
         result = charge_utils.validate_json(request_json, sub_domain, request_method)
         self.assertEqual(result['errors'][0], "invalid sub-domain")
 
+    def test_validate_geometry_search_json(self):
+        request_json = {"geometry": {"crs": {"properties": {"name": "EPSG:27700"}, "type": "name"},
+                                     "coordinates": [[[241959.0, 52874.0], [257661.0, 52874.0],
+                                                      [257661.0, 62362.0], [241959.0, 62362.0],
+                                                      [241959.0, 52874.0]]], "type": "Polygon"}}
+        sub_domain = "local-land-charge"
+        request_method = 'POST'
+        result = charge_utils.validate_json(request_json, sub_domain, request_method, search=True)
+        self.assertEqual(len(result['errors']), 0)
+
     def test_validate_json_missing_field(self):
         request_json = {"charge-type": "test",
                         "statutory-provisions": ["test:321"],
@@ -60,7 +70,7 @@ class TestChargeUtils(unittest.TestCase):
     @mock.patch('application.charge_utils.process_get_request')
     def test_validate_json_blank_inspection_reference(self, mock_get):
         request_json = {"charge-type": "test",
-                        "statutory-provisions": ["test:321"],
+                        "statutory-provisions": ["statutory-provision:321"],
                         "charge-description": "test",
                         "originating-authorities": ["test:123"],
                         "further-information": [{"information-location": "test:123"}],
@@ -168,7 +178,7 @@ class TestChargeUtils(unittest.TestCase):
     @mock.patch('application.charge_utils.process_get_request')
     def test_validate_json_valid_json(self, mock_get):
         request_json = {"charge-type": "test",
-                        "statutory-provisions": ["test:321"],
+                        "statutory-provisions": ["statutory-provision:321"],
                         "charge-description": "test",
                         "originating-authorities": ["test:123"],
                         "further-information": [{"information-location": "test:123",
@@ -203,7 +213,7 @@ class TestChargeUtils(unittest.TestCase):
     @mock.patch('application.charge_utils.process_get_request')
     def test_validate_json_valid_json_with_optional_fields(self, mock_get):
         request_json = {"charge-type": "test",
-                        "statutory-provisions": ["test:321"],
+                        "statutory-provisions": ["statutory-provision:321"],
                         "charge-description": "test",
                         "originating-authorities": ["test:123"],
                         "geometry": {"crs": {"properties": {"name": "EPSG:27700"}, "type": "name"},
@@ -412,7 +422,7 @@ class TestChargeUtils(unittest.TestCase):
     def test_validate_provisions_invalid(self, mock_get):
         errors = []
         request_json = {"charge-type": "test",
-                        "statutory-provisions": ["test:321", "test:987"],
+                        "statutory-provisions": ["statutory-provision:321", "statutory-provision:987"],
                         "charge-description": "test",
                         "originating-authorities": ["test:123"],
                         "further-information": [{"information-location": "test:123",
@@ -424,14 +434,14 @@ class TestChargeUtils(unittest.TestCase):
         mock_get.return_value = (provision_land_comp, 200)
         charge_utils.validate_statutory_provisions(errors, request_json)
         self.assertEqual(len(errors), 2)
-        self.assertIn("test:321 is a Land Compensation and must be supplied exclusively", errors[0])
-        self.assertIn("test:987 is a Land Compensation and must be supplied exclusively", errors[1])
+        self.assertIn("statutory-provision:321 is a Land Compensation and must be supplied exclusively", errors[0])
+        self.assertIn("statutory-provision:987 is a Land Compensation and must be supplied exclusively", errors[1])
 
     @mock.patch('application.charge_utils.process_get_request')
     def test_validate_provisions_not_found(self, mock_get):
         errors = []
         request_json = {"charge-type": "test",
-                        "statutory-provisions": ["test:321", "test:987"],
+                        "statutory-provisions": ["statutory-provision:321", "statutory-provision:987"],
                         "charge-description": "test",
                         "originating-authorities": ["test:123"],
                         "further-information": [{"information-location": "test:123",
@@ -460,6 +470,96 @@ class TestChargeUtils(unittest.TestCase):
         charge_utils.validate_statutory_provisions(errors, request_json)
         self.assertEqual(len(errors), 1)
         self.assertIn("At least one of 'statutory-provisions' or 'instrument' must be supplied", errors[0])
+
+    def test_validate_provisions_invalid_register(self):
+        errors = []
+        request_json = {"charge-type": "test",
+                        "statutory-provisions": ["test:321"],
+                        "charge-description": "test",
+                        "originating-authorities": ["test:123"],
+                        "further-information": [{"information-location": "test:123",
+                                                 "references": ["qwerty"]}],
+                        "geometry": {"crs": {"properties": {"name": "EPSG:27700"}, "type": "name"},
+                                     "coordinates": [[[241959.0, 52874.0], [257661.0, 52874.0],
+                                                      [257661.0, 62362.0], [241959.0, 62362.0],
+                                                      [241959.0, 52874.0]]], "type": "Polygon"}}
+        charge_utils.validate_statutory_provisions(errors, request_json)
+        self.assertEqual(len(errors), 1)
+        self.assertIn("Invalid register provided", errors[0])
+
+    def test_validate_provisions_index_error(self):
+        errors = []
+        request_json = {"charge-type": "test",
+                        "statutory-provisions": ["statutory-provision"],
+                        "charge-description": "test",
+                        "originating-authorities": ["test:123"],
+                        "further-information": [{"information-location": "test:123",
+                                                 "references": ["qwerty"]}],
+                        "geometry": {"crs": {"properties": {"name": "EPSG:27700"}, "type": "name"},
+                                     "coordinates": [[[241959.0, 52874.0], [257661.0, 52874.0],
+                                                      [257661.0, 62362.0], [241959.0, 62362.0],
+                                                      [241959.0, 52874.0]]], "type": "Polygon"}}
+        charge_utils.validate_statutory_provisions(errors, request_json)
+        self.assertEqual(len(errors), 1)
+        self.assertIn("No ID supplied", errors[0])
+
+    @mock.patch('application.charge_utils.requests.post')
+    def test_process_geometry_search(self, mock_post):
+        mock_post.return_value = FakeResponse(str.encode(json.dumps(search_result_many)), status_code=201)
+        request_json = {
+            "geometry": '{"crs": {"properties": {"name": "EPSG:27700"}, "type": "name"}, '
+            '"coordinates": [257661.0, 52874.0], "type": "Point"}'
+        }
+        host_url = "local-land-charge.landregistry.gov.uk"
+        result = charge_utils.process_geometry_search(host_url, request_json)
+        self.assertEqual(result[1], 201)
+        self.assertEqual(json.loads(result[0]), search_result_many)
+
+    @mock.patch('application.charge_utils.requests.post')
+    def test_process_geometry_search_http_error(self, mock_post):
+        mock_post.side_effect = requests.HTTPError()
+        mock_post.side_effect.response = FakeResponse(str.encode("This is an error message"), status_code=404)
+        request_json = {
+            "geometry": '{"crs": {"properties": {"name": "EPSG:27700"}, "type": "name"}, '
+            '"coordinates": [257661.0, 52874.0], "type": "Point"}'
+        }
+        host_url = "local-land-charge.landregistry.gov.uk"
+        result = charge_utils.process_geometry_search(host_url, request_json)
+        self.assertEqual(result[1], 404)
+
+    @mock.patch('application.charge_utils.requests.post')
+    def test_process_geometry_search_http_error_html_content(self, mock_post):
+        mock_post.side_effect = requests.HTTPError()
+        mock_post.side_effect.response = FakeResponse(str.encode("<!DOCTYPE HTML"), status_code=404)
+        request_json = {
+            "geometry": '{"crs": {"properties": {"name": "EPSG:27700"}, "type": "name"}, '
+            '"coordinates": [257661.0, 52874.0], "type": "Point"}'
+        }
+        host_url = "local-land-charge.landregistry.gov.uk"
+        try:
+            charge_utils.process_geometry_search(host_url, request_json)
+            self.fail('exception expected.')
+        except werkzeug.exceptions.HTTPException as e:
+            self.assertEqual(e.get_response().status_code, 500)
+
+    @mock.patch('application.charge_utils.requests.post', side_effect=requests.ConnectionError())
+    def test_process_geometry_search_connection_error(self, mock_post):
+        host_url = "local-land-charge.landregistry.gov.uk"
+        request_json = {
+            "geometry": '{"crs": {"properties": {"name": "EPSG:27700"}, "type": "name"}, '
+            '"coordinates": [257661.0, 52874.0], "type": "Point"}'
+        }
+        try:
+            charge_utils.process_geometry_search(host_url, request_json)
+            self.fail('exception expected.')
+        except werkzeug.exceptions.HTTPException as e:
+            self.assertEqual(e.get_response().status_code, 500)
+
+    def test_process_geometry_search_invalid_sub_domain(self):
+        host_url = "invalid.landregistry.gov.uk"
+        request_json = None
+        result = charge_utils.process_geometry_search(host_url, request_json)
+        self.assertEqual(json.loads(result[0])['errors'][0], "invalid sub-domain")
 
 post_response = {
     "charge-type": "test",
@@ -646,3 +746,110 @@ provision_land_comp = '{"entry-number": "1", "entry-timestamp": "2016-06-23T10:4
 provision_not_land_comp = '{"entry-number": "2", "entry-timestamp": "2016-06-23T10:48:49.603961",' \
                           ' "item-hash": "sha-256:d68d21babfda2646b1516e70e047ded0555b76275937f18371458067f28ed687", ' \
                           '"statutory-provision": "2", "text": "Something else"}'
+
+search_result_many = {
+  "3202": {
+    "charge-type": "type c",
+    "description": "Plot 196",
+    "entry-number": "3202",
+    "entry-timestamp": "2016-06-21T10:25:03.902929",
+    "further-information": [
+      {
+        "information-location": "further-information-location:5",
+        "references": [
+          "PLA/196"
+        ]
+      }
+    ],
+    "geometry": {
+      "coordinates": [
+        [
+          [
+            293518.5,
+            91099.2
+          ],
+          [
+            293785.0,
+            91099.2
+          ],
+          [
+            293785.0,
+            91267.4
+          ],
+          [
+            293518.5,
+            91267.4
+          ],
+          [
+            293518.5,
+            91099.2
+          ]
+        ]
+      ],
+      "crs": {
+        "properties": {
+          "name": "EPSG:27700"
+        },
+        "type": "name"
+      },
+      "type": "Polygon"
+    },
+    "instrument": "Deed",
+    "item-hash": "sha-256:f21568f065862a93e19d0f7ebc9baa0da6240e104a830175fce752d043444f00",
+    "local-land-charge": "3202",
+    "originating-authority": "llc-registering-authority:5",
+    "provision": "statutory-provision:665"
+  },
+  "3932": {
+    "charge-type": "type d",
+    "description": "Plot 926",
+    "entry-number": "3932",
+    "entry-timestamp": "2016-06-21T10:25:13.849768",
+    "further-information": [
+      {
+        "information-location": "further-information-location:5",
+        "references": [
+          "PLA/926"
+        ]
+      }
+    ],
+    "geometry": {
+      "coordinates": [
+        [
+          [
+            293518.5,
+            91099.2
+          ],
+          [
+            294318.0,
+            91099.2
+          ],
+          [
+            294318.0,
+            91603.8
+          ],
+          [
+            293518.5,
+            91603.8
+          ],
+          [
+            293518.5,
+            91099.2
+          ]
+        ]
+      ],
+      "crs": {
+        "properties": {
+          "name": "EPSG:27700"
+        },
+        "type": "name"
+      },
+      "type": "Polygon"
+    },
+    "instrument": "Deed",
+    "item-hash": "sha-256:c6665f4d48e220b0ed65f393289014666733b99e6f5161192f51aa563a7d4372",
+    "local-land-charge": "3932",
+    "originating-authority": "llc-registering-authority:5",
+    "provision": "statutory-provision:689"
+  }
+}

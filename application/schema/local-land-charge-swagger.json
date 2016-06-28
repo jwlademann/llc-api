@@ -132,6 +132,43 @@
                     }
                 }
             }
+        },
+        "/records/geometry/{geometry-function}": {
+            "post": {
+                "summary": "Search for Local land charges via a spatial search",
+                "operationId": "searchLocalLandCharge",
+                "description": "Search for Local land charges via a spatial search. {geometry-function} is a PostGIS functions but please use 'intersects' for this function",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/Search-Criteria"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Returns a collection of local land charges as defined by #/definitions/Local-Land-Charge",
+                        "schema": {
+                            "type": "application/json"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request due to invalid schema. Response will include 1 or more schema errors",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -306,6 +343,17 @@
                 "archived": {
                     "description": "Boolean to indicate whether the record has been archived.",
                     "type": "boolean"
+                }
+            }
+        },
+        "Search-Criteria": {
+            "type": "object",
+            "required": [
+                "geometry"
+            ],
+            "properties": {
+                "geometry": {
+                    "$ref": "#/definitions/Geometry"
                 }
             }
         },
