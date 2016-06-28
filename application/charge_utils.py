@@ -209,6 +209,7 @@ def validate_json(request_json, sub_domain, request_method, primary_id=None, sea
         return_value = {"errors": ['invalid sub-domain']}
     return return_value
 
+
 def remove_empty_array_values(request_json):
     # Remove empty string values from statutory-provisions and originating-authorities
     if "statutory-provisions" in request_json:
@@ -224,6 +225,7 @@ def remove_empty_array_values(request_json):
             if prov != "":
                 new_orig_auth.append(prov)
         request_json["originating-authorities"] = new_orig_auth
+
 
 def process_update_request(host_url, request_method, request_json, primary_id=None):
     sub_domain = host_url.split('.')[0]

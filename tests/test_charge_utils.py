@@ -193,6 +193,22 @@ class TestChargeUtils(unittest.TestCase):
         result = charge_utils.validate_json(request_json, sub_domain, request_method)
         self.assertEqual(len(result['errors']), 0)
 
+    def test_remove_empty_array_values(self):
+        request_json = {"charge-type": "test",
+                        "statutory-provisions": ["test:321", "", ""],
+                        "charge-description": "test",
+                        "originating-authorities": ["", "test:123"],
+                        "further-information": [{"information-location": "test:123",
+                                                 "references": ["qwerty"]}],
+                        "geometry": {"crs": {"properties": {"name": "EPSG:27700"}, "type": "name"},
+                                     "coordinates": [[[241959.0, 52874.0], [257661.0, 52874.0],
+                                                      [257661.0, 62362.0], [241959.0, 62362.0],
+                                                      [241959.0, 52874.0]]], "type": "Polygon"}}
+
+        charge_utils.remove_empty_array_values(request_json)
+        self.assertEqual(request_json["statutory-provisions"], ["test:321"])
+        self.assertEqual(request_json["originating-authorities"], ["test:123"])
+
     def test_validate_json_invalid_date(self):
         request_json = {"charge-type": "test",
                         "statutory-provisions": ["test:321"],
