@@ -94,6 +94,8 @@ def validate_statutory_provisions(errors, json_to_validate):
                         errors.append("Problem %s: %s" % (len(errors) + 1, error_message))
                 except IndexError:
                     app.logger.warn("Curie was not valid.")
+                    error_message = "No ID supplied in curie: {}".format(curie)
+                    errors.append("Problem %s: %s" % (len(errors) + 1, error_message))
     elif "instrument" not in json_to_validate:
         error_message = "At least one of 'statutory-provisions' or 'instrument' must be supplied."
         errors.append("Problem %s: %s" % (len(errors) + 1, error_message))

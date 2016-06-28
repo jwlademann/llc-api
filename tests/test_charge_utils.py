@@ -70,7 +70,7 @@ class TestChargeUtils(unittest.TestCase):
     @mock.patch('application.charge_utils.process_get_request')
     def test_validate_json_blank_inspection_reference(self, mock_get):
         request_json = {"charge-type": "test",
-                        "statutory-provisions": ["test:321"],
+                        "statutory-provisions": ["statutory-provision:321"],
                         "charge-description": "test",
                         "originating-authorities": ["test:123"],
                         "further-information": [{"information-location": "test:123"}],
@@ -178,7 +178,7 @@ class TestChargeUtils(unittest.TestCase):
     @mock.patch('application.charge_utils.process_get_request')
     def test_validate_json_valid_json(self, mock_get):
         request_json = {"charge-type": "test",
-                        "statutory-provisions": ["test:321"],
+                        "statutory-provisions": ["statutory-provision:321"],
                         "charge-description": "test",
                         "originating-authorities": ["test:123"],
                         "further-information": [{"information-location": "test:123",
@@ -213,7 +213,7 @@ class TestChargeUtils(unittest.TestCase):
     @mock.patch('application.charge_utils.process_get_request')
     def test_validate_json_valid_json_with_optional_fields(self, mock_get):
         request_json = {"charge-type": "test",
-                        "statutory-provisions": ["test:321"],
+                        "statutory-provisions": ["statutory-provision:321"],
                         "charge-description": "test",
                         "originating-authorities": ["test:123"],
                         "geometry": {"crs": {"properties": {"name": "EPSG:27700"}, "type": "name"},
@@ -422,7 +422,7 @@ class TestChargeUtils(unittest.TestCase):
     def test_validate_provisions_invalid(self, mock_get):
         errors = []
         request_json = {"charge-type": "test",
-                        "statutory-provisions": ["test:321", "test:987"],
+                        "statutory-provisions": ["statutory-provision:321", "statutory-provision:987"],
                         "charge-description": "test",
                         "originating-authorities": ["test:123"],
                         "further-information": [{"information-location": "test:123",
@@ -434,14 +434,14 @@ class TestChargeUtils(unittest.TestCase):
         mock_get.return_value = (provision_land_comp, 200)
         charge_utils.validate_statutory_provisions(errors, request_json)
         self.assertEqual(len(errors), 2)
-        self.assertIn("test:321 is a Land Compensation and must be supplied exclusively", errors[0])
-        self.assertIn("test:987 is a Land Compensation and must be supplied exclusively", errors[1])
+        self.assertIn("statutory-provision:321 is a Land Compensation and must be supplied exclusively", errors[0])
+        self.assertIn("statutory-provision:987 is a Land Compensation and must be supplied exclusively", errors[1])
 
     @mock.patch('application.charge_utils.process_get_request')
     def test_validate_provisions_not_found(self, mock_get):
         errors = []
         request_json = {"charge-type": "test",
-                        "statutory-provisions": ["test:321", "test:987"],
+                        "statutory-provisions": ["statutory-provision:321", "statutory-provision:987"],
                         "charge-description": "test",
                         "originating-authorities": ["test:123"],
                         "further-information": [{"information-location": "test:123",
@@ -470,6 +470,38 @@ class TestChargeUtils(unittest.TestCase):
         charge_utils.validate_statutory_provisions(errors, request_json)
         self.assertEqual(len(errors), 1)
         self.assertIn("At least one of 'statutory-provisions' or 'instrument' must be supplied", errors[0])
+
+    def test_validate_provisions_invalid_register(self):
+        errors = []
+        request_json = {"charge-type": "test",
+                        "statutory-provisions": ["test:321"],
+                        "charge-description": "test",
+                        "originating-authorities": ["test:123"],
+                        "further-information": [{"information-location": "test:123",
+                                                 "references": ["qwerty"]}],
+                        "geometry": {"crs": {"properties": {"name": "EPSG:27700"}, "type": "name"},
+                                     "coordinates": [[[241959.0, 52874.0], [257661.0, 52874.0],
+                                                      [257661.0, 62362.0], [241959.0, 62362.0],
+                                                      [241959.0, 52874.0]]], "type": "Polygon"}}
+        charge_utils.validate_statutory_provisions(errors, request_json)
+        self.assertEqual(len(errors), 1)
+        self.assertIn("Invalid register provided", errors[0])
+
+    def test_validate_provisions_index_error(self):
+        errors = []
+        request_json = {"charge-type": "test",
+                        "statutory-provisions": ["statutory-provision"],
+                        "charge-description": "test",
+                        "originating-authorities": ["test:123"],
+                        "further-information": [{"information-location": "test:123",
+                                                 "references": ["qwerty"]}],
+                        "geometry": {"crs": {"properties": {"name": "EPSG:27700"}, "type": "name"},
+                                     "coordinates": [[[241959.0, 52874.0], [257661.0, 52874.0],
+                                                      [257661.0, 62362.0], [241959.0, 62362.0],
+                                                      [241959.0, 52874.0]]], "type": "Polygon"}}
+        charge_utils.validate_statutory_provisions(errors, request_json)
+        self.assertEqual(len(errors), 1)
+        self.assertIn("No ID supplied", errors[0])
 
     @mock.patch('application.charge_utils.requests.post')
     def test_process_geometry_search(self, mock_post):
