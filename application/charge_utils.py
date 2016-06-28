@@ -192,12 +192,28 @@ def process_get_request(host_url, primary_id=None, resolve='0'):
 
 def validate_json(request_json, sub_domain, request_method, primary_id=None):
     if sub_domain in register_details:
+        remove_empty_array_values(request_json)
         errors = validate_helper(request_json, sub_domain, request_method, primary_id)
         return_value = {"errors": errors}
     else:
         return_value = {"errors": ['invalid sub-domain']}
     return return_value
 
+def remove_empty_array_values(request_json):
+    # Remove empty string values from statutory-provisions and originating-authorities
+    if "statutory-provisions" in request_json:
+        new_stat_prov = []
+        for prov in request_json["statutory-provisions"]:
+            if prov != "":
+                new_stat_prov.append(prov)
+        request_json["statutory-provisions"] = new_stat_prov
+
+    if "originating-authorities" in request_json:
+        new_orig_auth = []
+        for prov in request_json["originating-authoritiess"]:
+            if prov != "":
+                new_orig_auth.append(prov)
+        request_json["originating-authorities"] = new_orig_auth
 
 def process_update_request(host_url, request_method, request_json, primary_id=None):
     sub_domain = host_url.split('.')[0]
