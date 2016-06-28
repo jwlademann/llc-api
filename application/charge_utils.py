@@ -78,18 +78,22 @@ def validate_statutory_provisions(errors, json_to_validate):
         provisions = json_to_validate['statutory-provisions']
         for provision in provisions:
             curie = provision.split(':')
-            try:
-                result = process_get_request(app.config['SP_API_URI'], curie[1])
-                if result[1] == 200:
-                    provision_json = json.loads(result[0])
-                    if "land compensation" in provision_json['text'].lower() and len(provisions) > 1:
-                        error_message = provision + " is a Land Compensation and must be supplied exclusively."
+            if curie[0] != 'statutory-provision':
+                error_message = "Invalid register provided."
+                errors.append("Problem %s: %s" % (len(errors) + 1, error_message))
+            else:
+                try:
+                    result = process_get_request(app.config['SP_API_URI'], curie[1])
+                    if result[1] == 200:
+                        provision_json = json.loads(result[0])
+                        if "land compensation" in provision_json['text'].lower() and len(provisions) > 1:
+                            error_message = provision + " is a Land Compensation and must be supplied exclusively."
+                            errors.append("Problem %s: %s" % (len(errors) + 1, error_message))
+                    else:
+                        error_message = "Could not find record in statutory-provision register."
                         errors.append("Problem %s: %s" % (len(errors) + 1, error_message))
-                else:
-                    error_message = "Could not find record in statutory-provision register."
-                    errors.append("Problem %s: %s" % (len(errors) + 1, error_message))
-            except IndexError:
-                app.logger.warn("Curie was not valid.")
+                except IndexError:
+                    app.logger.warn("Curie was not valid.")
     elif "instrument" not in json_to_validate:
         error_message = "At least one of 'statutory-provisions' or 'instrument' must be supplied."
         errors.append("Problem %s: %s" % (len(errors) + 1, error_message))
