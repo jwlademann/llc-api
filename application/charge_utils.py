@@ -220,7 +220,7 @@ def remove_empty_array_values(request_json):
 
     if "originating-authorities" in request_json:
         new_orig_auth = []
-        for prov in request_json["originating-authoritiess"]:
+        for prov in request_json["originating-authorities"]:
             if prov != "":
                 new_orig_auth.append(prov)
         request_json["originating-authorities"] = new_orig_auth
