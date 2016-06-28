@@ -79,7 +79,7 @@ def validate_statutory_provisions(errors, json_to_validate):
         for provision in provisions:
             curie = provision.split(':')
             if curie[0] != 'statutory-provision':
-                error_message = "Invalid register provided."
+                error_message = "Invalid register provided '{}' for Statutory Provision.".format(curie[0])
                 errors.append("Problem %s: %s" % (len(errors) + 1, error_message))
             else:
                 try:
