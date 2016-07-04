@@ -282,7 +282,7 @@ def process_geometry_search(host_url, request_json, function='intersects'):
             # the record in the future.
             json_response = json.loads(response.text)
             return_value = (json.dumps(json_response, sort_keys=True), response.status_code,
-                            {"Content-Type": "application/json"})
+                            {"Content-Type": "application/json", 'Truncated': response.headers.get('Truncated')})
         except requests.HTTPError as e:
             if e.response.text.startswith("<!DOCTYPE HTML"):
                 abort(500)
