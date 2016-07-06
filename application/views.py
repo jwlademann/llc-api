@@ -47,6 +47,7 @@ def create_charge():
         #         app.logger.warn('Could not decode json: ' + str(e))
         #         pass  # Geometry causing these errors will be caught by validation and returned to the user
         result = charge_utils.validate_json(request.get_json(), sub_domain, request.method)
+        resolve = request.args.get('resolve')
         if result['errors']:
             # If there are errors add array to JSON and return
             errors = {"errors": result['errors']}
@@ -55,7 +56,8 @@ def create_charge():
         else:
             return_value = charge_utils.process_update_request(request.headers['Host'],
                                                                request.method,
-                                                               request.get_json())
+                                                               request.get_json(),
+                                                               resolve=resolve)
     else:
         return_value = (json.dumps({"errors": ['invalid sub-domain']}), 400,
                         {"Content-Type": "application/json"})
