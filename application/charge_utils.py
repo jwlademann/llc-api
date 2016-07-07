@@ -153,9 +153,10 @@ def _create_llc_validator(sub_domain, request_method, primary_id, search):
             }
             schema['required'].append(register_details[sub_domain]['register_name'])
         elif request_method == 'POST':
-            # If POST request remove 'local-land-charge' from properties as it shouldn't be provided
+            # If POST request remove register primary id and 'registration-date' from properties as it shouldn't be provided
             schema['properties'].pop(register_details[sub_domain]['register_name'])
-
+            # TODO: Put list of read-only fields in register_details?
+            schema['properties'].pop('registration-date', None)
     validator = validator_for(schema)
     validator.check_schema(schema)
     return validator(schema)
