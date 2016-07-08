@@ -341,7 +341,7 @@ class TestChargeUtils(unittest.TestCase):
                                                       [257661.0, 62362.0], [241959.0, 62362.0],
                                                       [241959.0, 52874.0]]], "type": "Polygon"}
                         }
-        result = charge_utils.process_update_request(host_url, request_method, request_json)
+        result = charge_utils.process_update_request(host_url, request_method, request_json, resolve='1')
         self.assertEqual(result[1], 201)
         self.assertEqual(json.loads(result[0])['record']['charge-type'],
                          request_json['charge-type'])
@@ -366,7 +366,7 @@ class TestChargeUtils(unittest.TestCase):
                         }
         primary_id = '48'
         result = charge_utils.process_update_request(host_url, request_method, request_json,
-                                                     primary_id=primary_id)
+                                                     primary_id=primary_id, resolve='1')
         self.assertEqual(result[1], 201)
         self.assertEqual(json.loads(result[0])['record']['charge-type'],
                          request_json['charge-type'])
