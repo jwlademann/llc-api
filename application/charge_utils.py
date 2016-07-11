@@ -228,7 +228,7 @@ def remove_empty_array_values(request_json):
         request_json["originating-authorities"] = new_orig_auth
 
 
-def process_update_request(host_url, request_method, request_json, primary_id=None):
+def process_update_request(host_url, request_method, request_json, primary_id=None, resolve='0'):
     sub_domain = host_url.split('.')[0]
     if sub_domain in register_details:
         try:
@@ -237,10 +237,14 @@ def process_update_request(host_url, request_method, request_json, primary_id=No
                 register_url = (app.config['LLC_REGISTER_URL'] + "/" +
                                 register_details[sub_domain]['register_name'] + "/record/" +
                                 str(primary_id))
+                if resolve == '1':
+                    register_url += '?resolve=1'
                 response = requests.put(register_url, json=request_json)
             else:
                 register_url = (app.config['LLC_REGISTER_URL'] + "/" +
                                 register_details[sub_domain]['register_name'] + "/records")
+                if resolve == '1':
+                    register_url += '?resolve=1'
                 response = requests.post(register_url, json=request_json)
             response.raise_for_status()
 
