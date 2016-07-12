@@ -59,6 +59,7 @@ def _format_error_messages(error, sub_domain):
 
 def validate_helper(json_to_validate, sub_domain, request_method, primary_id, search):
     errors = []
+
     validator = _create_llc_validator(sub_domain, request_method, primary_id, search)
     error_list = sorted(validator.iter_errors(json_to_validate),
                         key=str, reverse=True)
@@ -117,7 +118,7 @@ def get_swagger_file(sub_domain):
     return load_json_file(os.getcwd() + "/application/schema/%s" % register_details[sub_domain]['filename'])
 
 
-def load_json_schema(sub_domain, search):
+def load_json_schema(compensation_charge, sub_domain, search):
     swagger = get_swagger_file(sub_domain)
 
     definitions = swagger["definitions"]
@@ -125,7 +126,19 @@ def load_json_schema(sub_domain, search):
     if search:
         record_definition = definitions[SEARCH_DEFININTION]
     else:
-        record_definition = definitions[register_details[sub_domain]['definition_name']]
+        record_definition = {}
+        if sub_domain == "local-land-charge":
+            if compensation_charge:
+                definition_name = compensation_charge
+            else:
+                definition_name = register_details[sub_domain]['definition_name']
+
+            record_definition["properties"] = {**definitions['Charge']['properties'],
+                                              **definitions[definition_name]['allOf'][1]['properties']}
+            record_definition["required"] = definitions['Charge']['required'] + \
+                                              definitions[definition_name]['allOf'][1]['required']
+        else:
+            record_definition = definitions[register_details[sub_domain]['definition_name']]
 
     record = {
         "definitions": definitions,
@@ -139,7 +152,7 @@ def load_json_schema(sub_domain, search):
 
 
 def _create_llc_validator(sub_domain, request_method, primary_id, search):
-    schema = copy.deepcopy(load_json_schema(sub_domain, search))
+    schema = copy.deepcopy(load_json_schema(json_to_validate, sub_domain, search))
 
     if not search:
         if request_method == 'PUT':
