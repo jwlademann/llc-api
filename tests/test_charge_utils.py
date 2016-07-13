@@ -253,7 +253,13 @@ class TestChargeUtils(unittest.TestCase):
         sub_domain = "local-land-charge"
         request_method = 'POST'
         result = charge_utils.validate_json(request_json, sub_domain, request_method)
-        print(result['errors'])
+        self.assertEqual(len(result['errors']), 0)
+
+    def test_validate_valid_statutory_provision(self):
+        request_json = {"text": "Test Provision"}
+        sub_domain = "statutory-provision"
+        request_method = "POST"
+        result = charge_utils.validate_json(request_json, sub_domain, request_method)
         self.assertEqual(len(result['errors']), 0)
 
     def test_process_update_request_invalid_sub_domain(self):
@@ -473,7 +479,7 @@ class TestChargeUtils(unittest.TestCase):
                                                       [241959.0, 52874.0]]], "type": "Polygon"}}
         mock_get.return_value = (provision_land_comp_section8, 200)
         result = charge_utils.validate_statutory_provisions(errors, request_json)
-        self.assertEqual(result, 'Land-Compensation-Charge-S8')    \
+        self.assertEqual(result, 'Land-Compensation-Charge-S8')
 
     @mock.patch('application.charge_utils.process_get_request')
     def test_validate_compensation_act_section52(self, mock_get):
@@ -491,15 +497,6 @@ class TestChargeUtils(unittest.TestCase):
         mock_get.return_value = (provision_land_comp_section_52, 200)
         result = charge_utils.validate_statutory_provisions(errors, request_json)
         self.assertEqual(result, 'Land-Compensation-Charge-S52')
-
-    def test_validate_statutory_provision_schema(self):
-        compensation_charge = None
-        sub_domain = 'statutory-provision'
-        search = False
-        result = charge_utils.load_json_schema(compensation_charge, sub_domain, search)
-        print(result)
-        self.assertEqual(result, 0)
-
 
     @mock.patch('application.charge_utils.process_get_request')
     def test_validate_provisions_not_found(self, mock_get):
