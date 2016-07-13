@@ -95,8 +95,10 @@ def validate_statutory_provisions(errors, json_to_validate):
                         provision_json = json.loads(result[0])
                         if "Land Compensation Act 1973 s.8(4)".lower() in provision_json['text'].lower():
                             compensation_charge = "Land-Compensation-Charge-S8"
+                            break
                         elif "Land Compensation Act 1973 s.52(8)".lower() in provision_json['text'].lower():
                             compensation_charge = "Land-Compensation-Charge-S52"
+                            break
                     else:
                         error_message = "Could not find record in statutory-provision register."
                         errors.append("Problem %s: %s" % (len(errors) + 1, error_message))
@@ -141,10 +143,8 @@ def load_json_schema(compensation_charge, sub_domain, search):
             else:
                 definition_name = register_details[sub_domain]['definition_name']
 
-            record_definition["properties"] = {**definitions['Charge']['properties'],
-                                              **definitions[definition_name]['allOf'][1]['properties']}
-            record_definition["required"] = definitions['Charge']['required'] + \
-                                              definitions[definition_name]['allOf'][1]['required']
+            record_definition["properties"] = {**definitions['Charge']['properties'], **definitions[definition_name]['allOf'][1]['properties']}
+            record_definition["required"] = definitions['Charge']['required'] + definitions[definition_name]['allOf'][1]['required']
         else:
             record_definition = definitions[register_details[sub_domain]['definition_name']]
 

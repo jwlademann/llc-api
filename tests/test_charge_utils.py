@@ -42,11 +42,13 @@ class TestChargeUtils(unittest.TestCase):
         result = charge_utils.validate_json(request_json, sub_domain, request_method, search=True)
         self.assertEqual(len(result['errors']), 0)
 
-    def test_validate_json_missing_field(self):
+    @mock.patch('application.charge_utils.validate_statutory_provisions')
+    def test_validate_json_missing_field(self, mock_validate_stat_prov):
         request_json = {"charge-type": "test",
                         "statutory-provisions": ["test:321"],
                         "charge-description": "test",
                         "originating-authorities": ["test:123"]}
+        mock_validate_stat_prov.return_value = None
         sub_domain = "local-land-charge"
         request_method = 'POST'
         result = charge_utils.validate_json(request_json, sub_domain, request_method)
@@ -226,6 +228,7 @@ class TestChargeUtils(unittest.TestCase):
         result = charge_utils.validate_json(request_json, sub_domain, request_method)
         self.assertIn("'expiration-date' is an invalid date", str(result['errors']))
 
+    # @mock.patch('application.charge_utils.validate_statutory_provisions')
     @mock.patch('application.charge_utils.process_get_request')
     def test_validate_json_valid_json_with_optional_fields(self, mock_get):
         request_json = {"charge-type": "test",
@@ -243,16 +246,14 @@ class TestChargeUtils(unittest.TestCase):
                         "old-register-part": "1",
                         "further-information": [{"information-location": "test:123",
                                                  "references": ["test"]}],
-                        "land-description": "test",
-                        "works-particulars": "test",
-                        "capacity-description": "test",
-                        "compensation-paid": "test",
                         "unique-property-reference-numbers": [1234]
                         }
+        # mock_validate_stat_prov.return_value = None
         mock_get.return_value = (provision_not_land_comp, 200)
         sub_domain = "local-land-charge"
         request_method = 'POST'
         result = charge_utils.validate_json(request_json, sub_domain, request_method)
+        print(result['errors'])
         self.assertEqual(len(result['errors']), 0)
 
     def test_process_update_request_invalid_sub_domain(self):
@@ -434,11 +435,34 @@ class TestChargeUtils(unittest.TestCase):
         self.assertEqual(result[1], 201)
         self.assertEqual(json.loads(result[0])['charge-type'], "test")
 
-    @mock.patch('application.charge_utils.process_get_request')
-    def test_validate_provisions_invalid(self, mock_get):
-        errors = []
+    @mock.patch('application.charge_utils.validate_statutory_provisions')
+    def test_validate_multiple_compensation_provisions_invalid(self, mock_validate_stat_prov):
         request_json = {"charge-type": "test",
                         "statutory-provisions": ["statutory-provision:321", "statutory-provision:987"],
+                        "originating-authorities": ["test:123"],
+                        "land-description": "land",
+                        "works-particulars": "particulars",
+                        "further-information": [{"information-location": "test:123",
+                                                 "references": ["qwerty"]}],
+                        "geometry": {"crs": {"properties": {"name": "EPSG:27700"}, "type": "name"},
+                                     "coordinates": [[[241959.0, 52874.0], [257661.0, 52874.0],
+                                                      [257661.0, 62362.0], [241959.0, 62362.0],
+                                                      [241959.0, 52874.0]]], "type": "Polygon"}}
+        mock_validate_stat_prov.return_value = ("Land-Compensation-Charge-S8")
+        sub_domain = "local-land-charge"
+        request_method = 'POST'
+        primary_id = 1
+        search = False
+        result = charge_utils.validate_helper(request_json, sub_domain, request_method, primary_id, search)
+        print(result)
+        self.assertEqual(len(result), 1)
+        self.assertIn("Problem 1: 'statutory-provisions' ['statutory-provision:321', 'statutory-provision:987'] is too long", result[0])
+
+    @mock.patch('application.charge_utils.process_get_request')
+    def test_validate_compensation_act_section8(self, mock_get):
+        errors = []
+        request_json = {"charge-type": "test",
+                        "statutory-provisions": ["statutory-provision:321"],
                         "charge-description": "test",
                         "originating-authorities": ["test:123"],
                         "further-information": [{"information-location": "test:123",
@@ -447,11 +471,35 @@ class TestChargeUtils(unittest.TestCase):
                                      "coordinates": [[[241959.0, 52874.0], [257661.0, 52874.0],
                                                       [257661.0, 62362.0], [241959.0, 62362.0],
                                                       [241959.0, 52874.0]]], "type": "Polygon"}}
-        mock_get.return_value = (provision_land_comp, 200)
-        charge_utils.validate_statutory_provisions(errors, request_json)
-        self.assertEqual(len(errors), 2)
-        self.assertIn("statutory-provision:321 is a Land Compensation and must be supplied exclusively", errors[0])
-        self.assertIn("statutory-provision:987 is a Land Compensation and must be supplied exclusively", errors[1])
+        mock_get.return_value = (provision_land_comp_section8, 200)
+        result = charge_utils.validate_statutory_provisions(errors, request_json)
+        self.assertEqual(result, 'Land-Compensation-Charge-S8')    \
+
+    @mock.patch('application.charge_utils.process_get_request')
+    def test_validate_compensation_act_section52(self, mock_get):
+        errors = []
+        request_json = {"charge-type": "test",
+                        "statutory-provisions": ["statutory-provision:321"],
+                        "charge-description": "test",
+                        "originating-authorities": ["test:123"],
+                        "further-information": [{"information-location": "test:123",
+                                                 "references": ["qwerty"]}],
+                        "geometry": {"crs": {"properties": {"name": "EPSG:27700"}, "type": "name"},
+                                     "coordinates": [[[241959.0, 52874.0], [257661.0, 52874.0],
+                                                      [257661.0, 62362.0], [241959.0, 62362.0],
+                                                      [241959.0, 52874.0]]], "type": "Polygon"}}
+        mock_get.return_value = (provision_land_comp_section_52, 200)
+        result = charge_utils.validate_statutory_provisions(errors, request_json)
+        self.assertEqual(result, 'Land-Compensation-Charge-S52')
+
+    def test_validate_statutory_provision_schema(self):
+        compensation_charge = None
+        sub_domain = 'statutory-provision'
+        search = False
+        result = charge_utils.load_json_schema(compensation_charge, sub_domain, search)
+        print(result)
+        self.assertEqual(result, 0)
+
 
     @mock.patch('application.charge_utils.process_get_request')
     def test_validate_provisions_not_found(self, mock_get):
@@ -466,7 +514,7 @@ class TestChargeUtils(unittest.TestCase):
                                      "coordinates": [[[241959.0, 52874.0], [257661.0, 52874.0],
                                                       [257661.0, 62362.0], [241959.0, 62362.0],
                                                       [241959.0, 52874.0]]], "type": "Polygon"}}
-        mock_get.return_value = (provision_land_comp, 404)
+        mock_get.return_value = (provision_land_comp_section8, 404)
         charge_utils.validate_statutory_provisions(errors, request_json)
         self.assertEqual(len(errors), 2)
         self.assertIn("Could not find record in statutory-provision", errors[0])
@@ -755,9 +803,13 @@ get_response_one = {
     "provision": "test:123"
 }
 
-provision_land_comp = '{"entry-number": "1", "entry-timestamp": "2016-06-23T10:44:22.515174", ' \
+provision_land_comp_section8 = '{"entry-number": "1", "entry-timestamp": "2016-06-23T10:44:22.515174", ' \
                       '"item-hash": "sha-256:cc53bb1ec3cc2facbdf4f3f064e08fbd2620a3452f16ee2723a030cded15cbe3", ' \
-                      '"statutory-provision": "1", "text": "Land Compensation"}'
+                      '"statutory-provision": "1", "text": "Land Compensation Act 1973 s.8(4)"}'
+
+provision_land_comp_section_52 = '{"entry-number": "1", "entry-timestamp": "2016-06-23T10:44:22.515174", ' \
+                                 '"item-hash": "sha-256:cc53bb1ec3cc2facbdf4f3f064e08fbd2620a3452f16ee2723a030cded15cbe3", ' \
+                                 '"statutory-provision": "1", "text": "Land Compensation Act 1973 s.52(8)"}'
 
 provision_not_land_comp = '{"entry-number": "2", "entry-timestamp": "2016-06-23T10:48:49.603961",' \
                           ' "item-hash": "sha-256:d68d21babfda2646b1516e70e047ded0555b76275937f18371458067f28ed687", ' \
