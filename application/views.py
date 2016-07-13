@@ -71,6 +71,7 @@ def update_charge(primary_id):
     if sub_domain in charge_utils.register_details:
         result = charge_utils.validate_json(request.get_json(), sub_domain, request.method,
                                             primary_id)
+        resolve = request.args.get('resolve')
         if result['errors']:
             # If there are errors add array to JSON and return
             errors = {"errors": result['errors']}
@@ -80,7 +81,8 @@ def update_charge(primary_id):
             return_value = charge_utils.process_update_request(request.headers['Host'],
                                                                request.method,
                                                                request.get_json(),
-                                                               primary_id)
+                                                               primary_id,
+                                                               resolve=resolve)
     else:
         return_value = (json.dumps({"errors": ['invalid sub-domain']}), 400,
                         {"Content-Type": "application/json"})
