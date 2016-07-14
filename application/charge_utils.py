@@ -143,8 +143,8 @@ def load_json_schema(compensation_charge, sub_domain, search):
             else:
                 definition_name = register_details[sub_domain]['definition_name']
 
-            record_definition["properties"] = {**definitions['Charge']['properties'], **definitions[definition_name]['allOf'][1]['properties']}
-            record_definition["required"] = definitions['Charge']['required'] + definitions[definition_name]['allOf'][1]['required']
+            record_definition["properties"] = {**definitions['Base-Charge']['properties'], **definitions[definition_name]['allOf'][1]['properties']}
+            record_definition["required"] = definitions['Base-Charge']['required'] + definitions[definition_name]['allOf'][1]['required']
         else:
             record_definition = definitions[register_details[sub_domain]['definition_name']]
 
