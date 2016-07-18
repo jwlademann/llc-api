@@ -59,21 +59,27 @@ def _format_error_messages(error, sub_domain):
 
 def validate_helper(json_to_validate, sub_domain, request_method, primary_id, search):
     errors = []
-    validator = _create_llc_validator(sub_domain, request_method, primary_id, search)
+
+    compensation_charge = None
+    if sub_domain == "local-land-charge" and not search:
+        compensation_charge = validate_statutory_provisions(errors, json_to_validate)
+
+    validator = _create_llc_validator(sub_domain, request_method, primary_id, search, compensation_charge)
     error_list = sorted(validator.iter_errors(json_to_validate),
                         key=str, reverse=True)
 
-    for count, error in enumerate(error_list, start=1):
+    start = len(errors) + 1
+    for count, error in enumerate(error_list, start=start):
         errors.append("Problem %s: %s" % (count, _format_error_messages(error, sub_domain)))
 
     if sub_domain == "local-land-charge" and not search:
         validate_date(errors, json_to_validate)
-        validate_statutory_provisions(errors, json_to_validate)
 
     return errors
 
 
 def validate_statutory_provisions(errors, json_to_validate):
+    compensation_charge = None
     if "statutory-provisions" in json_to_validate and len(json_to_validate['statutory-provisions']) > 0:
         provisions = json_to_validate['statutory-provisions']
         for provision in provisions:
@@ -86,9 +92,12 @@ def validate_statutory_provisions(errors, json_to_validate):
                     result = process_get_request(app.config['SP_API_URI'], curie[1])
                     if result[1] == 200:
                         provision_json = json.loads(result[0])
-                        if "land compensation" in provision_json['text'].lower() and len(provisions) > 1:
-                            error_message = provision + " is a Land Compensation and must be supplied exclusively."
-                            errors.append("Problem %s: %s" % (len(errors) + 1, error_message))
+                        if "Land Compensation Act 1973 s.8(4)".lower() in provision_json['text'].lower():
+                            compensation_charge = "Land-Compensation-Charge-S8"
+                            break
+                        elif "Land Compensation Act 1973 s.52(8)".lower() in provision_json['text'].lower():
+                            compensation_charge = "Land-Compensation-Charge-S52"
+                            break
                     else:
                         error_message = "Could not find record in statutory-provision register."
                         errors.append("Problem %s: %s" % (len(errors) + 1, error_message))
@@ -99,6 +108,7 @@ def validate_statutory_provisions(errors, json_to_validate):
     elif "instrument" not in json_to_validate:
         error_message = "At least one of 'statutory-provisions' or 'instrument' must be supplied."
         errors.append("Problem %s: %s" % (len(errors) + 1, error_message))
+    return compensation_charge
 
 
 def validate_date(errors, json_to_validate):
@@ -117,7 +127,7 @@ def get_swagger_file(sub_domain):
     return load_json_file(os.getcwd() + "/application/schema/%s" % register_details[sub_domain]['filename'])
 
 
-def load_json_schema(sub_domain, search):
+def load_json_schema(compensation_charge, sub_domain, search):
     swagger = get_swagger_file(sub_domain)
 
     definitions = swagger["definitions"]
@@ -125,7 +135,17 @@ def load_json_schema(sub_domain, search):
     if search:
         record_definition = definitions[SEARCH_DEFININTION]
     else:
-        record_definition = definitions[register_details[sub_domain]['definition_name']]
+        record_definition = {}
+        if sub_domain == "local-land-charge":
+            if compensation_charge:
+                definition_name = compensation_charge
+            else:
+                definition_name = register_details[sub_domain]['definition_name']
+
+            record_definition["properties"] = {**definitions['Base-Charge']['properties'], **definitions[definition_name]['allOf'][1]['properties']}
+            record_definition["required"] = definitions['Base-Charge']['required'] + definitions[definition_name]['allOf'][1]['required']
+        else:
+            record_definition = definitions[register_details[sub_domain]['definition_name']]
 
     record = {
         "definitions": definitions,
@@ -138,8 +158,8 @@ def load_json_schema(sub_domain, search):
     return record
 
 
-def _create_llc_validator(sub_domain, request_method, primary_id, search):
-    schema = copy.deepcopy(load_json_schema(sub_domain, search))
+def _create_llc_validator(sub_domain, request_method, primary_id, search, compensation_charge):
+    schema = copy.deepcopy(load_json_schema(compensation_charge, sub_domain, search))
 
     if not search:
         if request_method == 'PUT':
