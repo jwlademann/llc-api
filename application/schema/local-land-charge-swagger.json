@@ -345,7 +345,7 @@
             ]
         },
         "Land-Compensation-Charge-S8":{
-            "description": "A local land charge created with a statutory provision recorded as s8(4) Land Compensation Act 1973",
+            "description": "A local land charge created with a statutory provision recorded as Land Compensation Act 1973 s.8(4)",
             "allOf": [
                 {
                     "$ref": "#/definitions/Base-Charge"
@@ -380,7 +380,7 @@
             ]
         },
         "Land-Compensation-Charge-S52":{
-            "description": "A local land charge created with a statutory provision recorded as s52(4) Land Compensation Act 1973",
+            "description": "A local land charge created with a statutory provision recorded as Land Compensation Act 1973 s.52(8)",
             "allOf": [
                 {
                     "$ref": "#/definitions/Base-Charge"
