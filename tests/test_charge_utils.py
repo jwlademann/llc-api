@@ -228,7 +228,6 @@ class TestChargeUtils(unittest.TestCase):
         result = charge_utils.validate_json(request_json, sub_domain, request_method)
         self.assertIn("'expiration-date' is an invalid date", str(result['errors']))
 
-    # @mock.patch('application.charge_utils.validate_statutory_provisions')
     @mock.patch('application.charge_utils.process_get_request')
     def test_validate_json_valid_json_with_optional_fields(self, mock_get):
         request_json = {"charge-type": "test",
@@ -248,7 +247,6 @@ class TestChargeUtils(unittest.TestCase):
                                                  "references": ["test"]}],
                         "unique-property-reference-numbers": [1234]
                         }
-        # mock_validate_stat_prov.return_value = None
         mock_get.return_value = (provision_not_land_comp, 200)
         sub_domain = "local-land-charge"
         request_method = 'POST'

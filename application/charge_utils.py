@@ -74,7 +74,6 @@ def validate_helper(json_to_validate, sub_domain, request_method, primary_id, se
 
     if sub_domain == "local-land-charge" and not search:
         validate_date(errors, json_to_validate)
-        # validate_statutory_provisions(errors, json_to_validate)
 
     return errors
 
