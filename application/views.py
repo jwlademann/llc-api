@@ -95,6 +95,7 @@ def geometry_search(function):
     sub_domain = request.headers['Host'].split('.')[0]
     if sub_domain == 'local-land-charge':
         result = charge_utils.validate_json(request.get_json(), sub_domain, request.method, search=True)
+        resolve = request.args.get('resolve')
         if result['errors']:
             # If there are errors add array to JSON and return
             errors = {"errors": result['errors']}
@@ -103,7 +104,7 @@ def geometry_search(function):
         else:
             return_value = charge_utils.process_geometry_search(request.headers['Host'],
                                                                 request.get_json(),
-                                                                function)
+                                                                function, resolve=resolve)
     else:
         return_value = (json.dumps({"errors": ['invalid sub-domain']}), 400,
                         {"Content-Type": "application/json"})
