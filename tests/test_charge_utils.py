@@ -570,7 +570,7 @@ class TestChargeUtils(unittest.TestCase):
             '"coordinates": [257661.0, 52874.0], "type": "Point"}'
         }
         host_url = "local-land-charge.landregistry.gov.uk"
-        result = charge_utils.process_geometry_search(host_url, request_json)
+        result = charge_utils.process_geometry_search(host_url, request_json, resolve='1')
         self.assertEqual(result[1], 201)
         self.assertEqual(json.loads(result[0]), search_result_many)
 
