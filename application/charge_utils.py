@@ -291,13 +291,15 @@ def process_update_request(host_url, request_method, request_json, primary_id=No
     return return_value
 
 
-def process_geometry_search(host_url, request_json, function='intersects'):
+def process_geometry_search(host_url, request_json, function='intersects', resolve='0'):
     sub_domain = host_url.split('.')[0]
     if sub_domain == 'local-land-charge':
         try:
             # Decide which endpoint and request method to use based on incoming request method
             register_url = (app.config['LLC_REGISTER_URL'] + "/" +
                             register_details[sub_domain]['register_name'] + "/records/geometry/" + function)
+            if resolve == '1':
+                register_url += '?resolve=1'
 
             response = requests.post(register_url, json=request_json['geometry'])
 
