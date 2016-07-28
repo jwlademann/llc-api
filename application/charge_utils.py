@@ -92,10 +92,10 @@ def validate_statutory_provisions(errors, json_to_validate):
                     result = process_get_request(app.config['SP_API_URI'], curie[1])
                     if result[1] == 200:
                         provision_json = json.loads(result[0])
-                        if "Land Compensation Act 1973 s.8(4)".lower() in provision_json['text'].lower():
+                        if "Land Compensation Act 1973 section 8(4)".lower() in provision_json['text'].lower():
                             compensation_charge = "Land-Compensation-Charge-S8"
                             break
-                        elif "Land Compensation Act 1973 s.52(8)".lower() in provision_json['text'].lower():
+                        elif "Land Compensation Act 1973 section 52(8)".lower() in provision_json['text'].lower():
                             compensation_charge = "Land-Compensation-Charge-S52"
                             break
                     else:
