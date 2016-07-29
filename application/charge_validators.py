@@ -20,12 +20,12 @@ def validate_s8_compensation_charge(sub_domain, end_point, end_point_pattern, me
                 return {"errors": ["Failed to retrieve statutory provision"]}
             if 'text' not in record:
                 return {"errors": ["Invalid statutory provision"]}
-            if record['text'] == "Land Compensation Act 1973 s.8(4)".lower():
+            if record['text'] == "Land Compensation Act 1973 section 8(4)".lower():
                 s8_provision = True
     if s8_provision and not s8_schema:
-        return {'errors': ["Charges with Land Compensation Act 1973 s.8(4) provision must conform to land-compensation-charge-s8 definition"]}
+        return {'errors': ["Charges with Land Compensation Act 1973 section 8(4) provision must conform to land-compensation-charge-s8 definition"]}
     if not s8_provision and s8_schema:
-        return {'errors': ["Charges which conform to land-compensation-charge-s8 definition must contain Land Compensation Act 1973 s.8(4) provision"]}
+        return {'errors': ["Charges which conform to land-compensation-charge-s8 definition must contain Land Compensation Act 1973 section 8(4) provision"]}
     return {'errors': []}
 
 
@@ -47,13 +47,13 @@ def validate_s52_compensation_charge(sub_domain, end_point, end_point_pattern, m
                 return {"errors": ["Failed to retrieve statutory provision"]}
             if 'text' not in record:
                 return {"errors": ["Invalid statutory provision"]}
-            if record['text'] == "Land Compensation Act 1973 s.52(8)".lower():
+            if record['text'] == "Land Compensation Act 1973 section 52(8)".lower():
                 s52_provision = True
                 break
     if s52_provision and not s52_schema:
-        return {'errors': ["Charges with Land Compensation Act 1973 s.52(8) provision must conform to land-compensation-charge-s52 definition"]}
+        return {'errors': ["Charges with Land Compensation Act 1973 section 52(8) provision must conform to land-compensation-charge-s52 definition"]}
     if not s52_provision and s52_schema:
-        return {'errors': ["Charges which conform to land-compensation-charge-s52 definition must contain Land Compensation Act 1973 s.52(8) provision"]}
+        return {'errors': ["Charges which conform to land-compensation-charge-s52 definition must contain Land Compensation Act 1973 section 52(8) provision"]}
     return {'errors': []}
 
 
