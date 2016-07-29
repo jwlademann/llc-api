@@ -61,9 +61,13 @@ def create_record():
     response = register_utils.register_request(sub_domain, request.path, ["resolve={}".format(resolve)], request.method, json_payload)
     if response.status_code != 201:
         return_value = json.dumps({"errors": [response.text]})
+        headers = {"Content-Type": "application/json"}
     else:
-        return_value = json.dumps(response.json(), sort_keys=True)
-    return (return_value, response.status_code, {"Content-Type": "application/json"})
+        record = response.json()
+        return_value = json.dumps(record, sort_keys=True)
+        headers = {"Content-Type": "application/json",
+                   "Location": "{}record/{}".format(request.url_root, record[register_utils.REGISTER_INFO[sub_domain]['primary-id']])}
+    return (return_value, response.status_code, headers)
 
 
 @app.route("/record/<primary_id>", methods=["PUT"])
