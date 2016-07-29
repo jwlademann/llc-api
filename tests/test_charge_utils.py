@@ -800,11 +800,11 @@ get_response_one = {
 
 provision_land_comp_section8 = '{"entry-number": "1", "entry-timestamp": "2016-06-23T10:44:22.515174", ' \
                       '"item-hash": "sha-256:cc53bb1ec3cc2facbdf4f3f064e08fbd2620a3452f16ee2723a030cded15cbe3", ' \
-                      '"statutory-provision": "1", "text": "Land Compensation Act 1973 s.8(4)"}'
+                      '"statutory-provision": "1", "text": "Land Compensation Act 1973 section 8(4)"}'
 
 provision_land_comp_section_52 = '{"entry-number": "1", "entry-timestamp": "2016-06-23T10:44:22.515174", ' \
                                  '"item-hash": "sha-256:cc53bb1ec3cc2facbdf4f3f064e08fbd2620a3452f16ee2723a030cded15cbe3", ' \
-                                 '"statutory-provision": "1", "text": "Land Compensation Act 1973 s.52(8)"}'
+                                 '"statutory-provision": "1", "text": "Land Compensation Act 1973 section 52(8)"}'
 
 provision_not_land_comp = '{"entry-number": "2", "entry-timestamp": "2016-06-23T10:48:49.603961",' \
                           ' "item-hash": "sha-256:d68d21babfda2646b1516e70e047ded0555b76275937f18371458067f28ed687", ' \
