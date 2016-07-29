@@ -1,6 +1,8 @@
-from application import app, charge_utils
-from flask import request
 import json
+import traceback
+from flask import request
+
+from application import app, register_utils
 
 
 @app.route("/")
@@ -9,104 +11,93 @@ def check_status():
     return request.headers['Host'].split('.')[0] + " API running."
 
 
-@app.route("/records", methods=["GET"])
-def get_charges():
-    sub_domain = request.headers['Host'].split('.')[0]
-    if sub_domain in charge_utils.register_details:
-        return_value = charge_utils.process_get_request(request.headers['Host'])
-    else:
-        return_value = (json.dumps({"errors": ['invalid sub-domain']}), 400,
-                        {"Content-Type": "application/json"})
+@app.errorhandler(Exception)
+def internal_exception_handler(error):
+    tb_lines = traceback.format_exception(error.__class__, error, error.__traceback__)
+    tb_text = ''.join(tb_lines)
+    app.logger.error(tb_text)
+    return (json.dumps({"errors": [error]}), 500, {"Content-Type": "application/json"})
 
-    return return_value
+
+@app.route("/records", methods=["GET"])
+def get_records():
+    sub_domain = request.headers['Host'].split('.')[0]
+    resolve = request.args.get('resolve')
+    if sub_domain not in register_utils.REGISTER_INFO:
+        return (json.dumps({"errors": ['invalid sub-domain']}), 400, {"Content-Type": "application/json"})
+    response = register_utils.register_request(sub_domain, request.path, ["resolve={}".format(resolve)], request.method, None)
+    if response.status_code != 200:
+        return_value = json.dumps({"errors": [response.text]})
+    else:
+        return_value = json.dumps(response.json(), sort_keys=True)
+    return (return_value, response.status_code, {"Content-Type": "application/json"})
 
 
 @app.route("/record/<primary_id>", methods=["GET"])
-def get_charge(primary_id):
+def get_record(primary_id):
     sub_domain = request.headers['Host'].split('.')[0]
     resolve = request.args.get('resolve')
-    if sub_domain in charge_utils.register_details:
-        return_value = charge_utils.process_get_request(request.headers['Host'], primary_id, resolve)
+    if sub_domain not in register_utils.REGISTER_INFO:
+        return (json.dumps({"errors": ['invalid sub-domain']}), 400, {"Content-Type": "application/json"})
+    response = register_utils.register_request(sub_domain, request.path, ["resolve={}".format(resolve)], request.method, None)
+    if response.status_code != 200:
+        return_value = json.dumps({"errors": [response.text]})
     else:
-        return_value = (json.dumps({"errors": ['invalid sub-domain']}), 400,
-                        {"Content-Type": "application/json"})
-
-    return return_value
+        return_value = json.dumps(response.json(), sort_keys=True)
+    return (return_value, response.status_code, {"Content-Type": "application/json"})
 
 
 @app.route("/records", methods=["POST"])
-def create_charge():
+def create_record():
     sub_domain = request.headers['Host'].split('.')[0]
-    if sub_domain in charge_utils.register_details:
-        # if sub_domain == "local-land-charge":
-        #     try:
-        #         if 'geometry' in request.get_json():
-        #             geometry = json.loads(request.get_json()['geometry'])
-        #             request.get_json()['geometry'] = geometry
-        #     except (json.JSONDecodeError, TypeError) as e:
-        #         app.logger.warn('Could not decode json: ' + str(e))
-        #         pass  # Geometry causing these errors will be caught by validation and returned to the user
-        result = charge_utils.validate_json(request.get_json(), sub_domain, request.method)
-        resolve = request.args.get('resolve')
-        if result['errors']:
-            # If there are errors add array to JSON and return
-            errors = {"errors": result['errors']}
-            return_value = (json.dumps(errors, sort_keys=True), 400,
-                            {"Content-Type": "application/json"})
-        else:
-            return_value = charge_utils.process_update_request(request.headers['Host'],
-                                                               request.method,
-                                                               request.get_json(),
-                                                               resolve=resolve)
+    json_payload = request.get_json()
+    result = register_utils.validate_json(sub_domain, '/records', request.method, json_payload)
+    if len(result['errors']) > 0:
+        return (json.dumps(result), 400, {"Content-Type": "application/json"})
+    result = register_utils.additional_validation(sub_domain, request.path, '/records', request.method, json_payload)
+    if len(result['errors']) > 0:
+        return (json.dumps(result), 400, {"Content-Type": "application/json"})
+    resolve = request.args.get('resolve')
+    response = register_utils.register_request(sub_domain, request.path, ["resolve={}".format(resolve)], request.method, json_payload)
+    if response.status_code != 201:
+        return_value = json.dumps({"errors": [response.text]})
     else:
-        return_value = (json.dumps({"errors": ['invalid sub-domain']}), 400,
-                        {"Content-Type": "application/json"})
-
-    return return_value
+        return_value = json.dumps(response.json(), sort_keys=True)
+    return (return_value, response.status_code, {"Content-Type": "application/json"})
 
 
 @app.route("/record/<primary_id>", methods=["PUT"])
-def update_charge(primary_id):
+def update_record(primary_id):
     sub_domain = request.headers['Host'].split('.')[0]
-    if sub_domain in charge_utils.register_details:
-        result = charge_utils.validate_json(request.get_json(), sub_domain, request.method,
-                                            primary_id)
-        resolve = request.args.get('resolve')
-        if result['errors']:
-            # If there are errors add array to JSON and return
-            errors = {"errors": result['errors']}
-            return_value = (json.dumps(errors, sort_keys=True), 400,
-                            {"Content-Type": "application/json"})
-        else:
-            return_value = charge_utils.process_update_request(request.headers['Host'],
-                                                               request.method,
-                                                               request.get_json(),
-                                                               primary_id,
-                                                               resolve=resolve)
+    json_payload = request.get_json()
+    result = register_utils.validate_json(sub_domain, '/record/<primary_id>', request.method, json_payload)
+    if len(result['errors']) > 0:
+        return (json.dumps(result), 400, {"Content-Type": "application/json"})
+    result = register_utils.additional_validation(sub_domain, request.path, '/record/<primary_id>', request.method, json_payload)
+    if len(result['errors']) > 0:
+        return (json.dumps(result), 400, {"Content-Type": "application/json"})
+    resolve = request.args.get('resolve')
+    response = register_utils.register_request(sub_domain, request.path, ["resolve={}".format(resolve)], request.method, json_payload)
+    if response.status_code != 200:
+        return_value = json.dumps({"errors": [response.text]})
     else:
-        return_value = (json.dumps({"errors": ['invalid sub-domain']}), 400,
-                        {"Content-Type": "application/json"})
-
-    return return_value
+        return_value = json.dumps(response.json(), sort_keys=True)
+    return (return_value, response.status_code, {"Content-Type": "application/json"})
 
 
 @app.route("/records/geometry/<function>", methods=["POST"])
 def geometry_search(function):
     sub_domain = request.headers['Host'].split('.')[0]
-    if sub_domain == 'local-land-charge':
-        result = charge_utils.validate_json(request.get_json(), sub_domain, request.method, search=True)
-        resolve = request.args.get('resolve')
-        if result['errors']:
-            # If there are errors add array to JSON and return
-            errors = {"errors": result['errors']}
-            return_value = (json.dumps(errors, sort_keys=True), 400,
-                            {"Content-Type": "application/json"})
-        else:
-            return_value = charge_utils.process_geometry_search(request.headers['Host'],
-                                                                request.get_json(),
-                                                                function, resolve=resolve)
+    json_payload = request.get_json()
+    if sub_domain not in register_utils.REGISTER_INFO or not register_utils.REGISTER_INFO[sub_domain]['geometry-search']:
+        return (json.dumps({"errors": ['invalid sub-domain']}), 400, {"Content-Type": "application/json"})
+    result = register_utils.validate_json(sub_domain, '/records/geometry/<function>', request.method, json_payload)
+    if len(result['errors']) > 0:
+        return (json.dumps(result), 400, {"Content-Type": "application/json"})
+    resolve = request.args.get('resolve')
+    response = register_utils.register_request(sub_domain, request.path, ["resolve={}".format(resolve)], request.method, json_payload)
+    if response.status_code != 200:
+        return_value = json.dumps({"errors": [response.text]})
     else:
-        return_value = (json.dumps({"errors": ['invalid sub-domain']}), 400,
-                        {"Content-Type": "application/json"})
-
-    return return_value
+        return_value = json.dumps(response.json(), sort_keys=True)
+    return (return_value, response.status_code, {"Content-Type": "application/json"})

@@ -1,0 +1,32 @@
+{
+  "allOf": [
+    {
+      "$ref": "entry.json"
+    },
+    {
+      "title": "Registering-Authority",
+      "type": "object",
+      "properties": {
+        "llc-registering-authority": {
+          "description": "NOTE: Unique indentifier for this charge. Do not provide when creating a charge (POST request). Only required for PUT requests",
+          "type": "string"
+        },
+        "name": {
+          "description": "The name of the Local Authority",
+          "type": "string"
+        },
+        "archived": {
+          "description": "Boolean indicator to indicate whether the record has been archived",
+          "type": "boolean"
+        },
+        "entry-number": {},
+        "entry-timestamp": {},
+        "item-hash": {}
+      },
+      "additionalProperties": false,
+      "required": [
+        "name"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "allOf": [
+    {
+      "$ref": "entry.json"
+    },
+    {
+      "title": "Information-Location",
+      "type": "object",
+      "properties": {
+        "further-information-location": {
+          "description": "NOTE: Unique indentifier for this charge. Do not provide when creating a charge (POST request). Only required for PUT requests",
+          "type": "string"
+        },
+        "location": {
+          "description": "Description (Address) of the information location.",
+          "type": "string"
+        },
+        "archived": {
+          "description": "Boolean to indicate whether the record has been archived",
+          "type": "boolean"
+        },
+        "entry-number": {},
+        "entry-timestamp": {},
+        "item-hash": {}
+      },
+      "additionalProperties": false,
+      "required": [
+        "location"
+      ]
+    }
+  ]
+}
