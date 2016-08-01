@@ -64,6 +64,15 @@ schemas:
             schema: further-information-location-get
       400:
         description: Bad Request due to invalid schema. Response will include 1 or more schema errors
+  get:
+    description: Get the Information Location records
+    responses:
+      200:
+        description: A set Information Locations is returned
+        body:
+          application/json:
+            schema: further-information-location-set
+       
 /record/{primary_id}:
   uriParameters:
     primary_id:

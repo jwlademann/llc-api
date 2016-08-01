@@ -64,6 +64,14 @@ schemas:
             schema: llc-registering-authority-get
       400:
         description: Bad Request due to invalid schema. Response will include 1 or more schema errors
+  get:
+    description: Get the Registering Authority records
+    responses:
+      200:
+        description: A set of Registering Authorities is returned
+        body:
+          application/json:
+            schema: llc-registering-authority-set
         
 /record/{primary_id}:
   uriParameters:

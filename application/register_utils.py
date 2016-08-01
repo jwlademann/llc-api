@@ -1,5 +1,3 @@
-import json
-
 import flask
 import requests
 
@@ -49,21 +47,22 @@ def validate_json(sub_domain, end_point_pattern, method, json_payload):
     raml_end_point = end_point_pattern.replace('<', '{').replace('>', '}')
     raml_resource = None
     for resource in raml.resources:
-        if resource.path == raml_end_point and resource.method == method.lower():
+        if resource.path == raml_end_point and resource.method.lower() == method.lower():
             raml_resource = resource
             break
     if not raml_resource:
         return {"errors": ['cannot find RAML resource definition']}
     raml_schema = None
     # Get schema name from RAML resource
-    for body in raml_resource.body:
-        if body.mime_type == "application/json":
-            schema_name = body.schema
-            for schema in raml.schemas:
-                if schema_name in schema:
-                    raml_schema = schema[schema_name]
-                    break
-            break
+    if raml_resource.body:
+        for body in raml_resource.body:
+            if body.mime_type == "application/json":
+                schema_name = body.schema
+                for schema in raml.schemas:
+                    if schema_name in schema:
+                        raml_schema = schema[schema_name]
+                        break
+                break
     if not raml_schema:
         return {"errors": ['cannot find schema in RAML resource definition']}
     # Load schema and validate against it
@@ -81,6 +80,8 @@ def validate_json(sub_domain, end_point_pattern, method, json_payload):
 
 
 def additional_validation(sub_domain, end_point, end_point_pattern, method, json_payload):
+    """Perform additional validation based on given parameters
+    """
     if sub_domain not in REGISTER_INFO:
         return {"errors": ['invalid sub-domain']}
     error_return = []
@@ -94,6 +95,8 @@ def retrieve_curie(curie):
     """Lookup the given curie and return record if found/valid, else return None
     """
     register, primary_id = curie.split(':')
+    if register not in REGISTER_INFO:
+        raise Exception("Invalid register name '{}'".format(register))
     response = register_request(register, "/record/" + primary_id, [], 'get', None)
     if response.status_code == 404:
         return None
@@ -103,6 +106,8 @@ def retrieve_curie(curie):
 
 
 def register_request(sub_domain, end_point, parameters, method, json_payload):
+    """Send request to register backend
+    """
     try:
         response = getattr(requests, method.lower())("{}/{}{}?{}".format(app.config['LLC_REGISTER_URL'], sub_domain, end_point, '&'.join(parameters)),
                                                      json=json_payload)
@@ -112,9 +117,3 @@ def register_request(sub_domain, end_point, parameters, method, json_payload):
         else:
             return e.response
     return response
-
-
-def load_json_file(file_path):
-    with open(file_path, 'rt') as file:
-        json_data = json.load(file)
-    return json_data

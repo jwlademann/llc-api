@@ -100,6 +100,14 @@ schemas:
             schema: local-land-charge-get
       400:
         description: Bad Request due to invalid schema. Response will include 1 or more schema errors
+  get:
+    description: Get the Local Land Charge records
+    responses:
+      200:
+        description: A set of Local Land Charge records is returned
+        body:
+          application/json:
+            schema: local-land-charge-set
 
 /records/geometry/{function}:
   uriParameters:

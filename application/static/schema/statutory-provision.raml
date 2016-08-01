@@ -64,6 +64,14 @@ schemas:
             schema: statutory-provision-get
       400:
         description: Bad Request due to invalid schema. Response will include 1 or more schema errors
+  get:
+    description: Get the Statutory Provision records
+    responses:
+      200:
+        description: A set of Statutory Provisions is returned
+        body:
+          application/json:
+            schema: statutory-provision-set
           
 /record/{primary_id}:
   uriParameters:

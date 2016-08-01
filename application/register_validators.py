@@ -1,4 +1,4 @@
-from application import register_utils, app
+from application import register_utils
 
 
 def validate_primary_id(sub_domain, end_point, end_point_pattern, method, json_payload):
