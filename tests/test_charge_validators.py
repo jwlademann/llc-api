@@ -79,13 +79,15 @@ class TestChargeValidatorsS8(unittest.TestCase):
     def test_validate_s8_valid_json_statp_none(self, mock_curie_retrieve):
         mock_curie_retrieve.return_value = None
         self.assertEqual(charge_validators.validate_s8_compensation_charge(
-            'local-land-charge', '/', '/', 'post', valid_s8), {'errors': ['Failed to retrieve statutory provision']})
+            'local-land-charge', '/', '/', 'post', valid_s8),
+            {'errors': ['Failed to retrieve statutory provision for Land Compensation Act 1973 section 8(4) validation']})
 
     @patch('application.charge_validators.register_utils.retrieve_curie')
     def test_validate_s8_valid_json_statp_invalid(self, mock_curie_retrieve):
         mock_curie_retrieve.return_value = {"vall": "fkoefkoe"}
         self.assertEqual(charge_validators.validate_s8_compensation_charge(
-            'local-land-charge', '/', '/', 'post', valid_s8), {'errors': ['Invalid statutory provision']})
+            'local-land-charge', '/', '/', 'post', valid_s8),
+            {'errors': ['Invalid statutory provision for Land Compensation Act 1973 section 8(4) validation']})
 
     @patch('application.charge_validators.register_utils.retrieve_curie')
     def test_validate_s8_valid_json_statp_valid(self, mock_curie_retrieve):
@@ -122,13 +124,15 @@ class TestChargeValidatorsS52(unittest.TestCase):
     def test_validate_s52_valid_json_statp_none(self, mock_curie_retrieve):
         mock_curie_retrieve.return_value = None
         self.assertEqual(charge_validators.validate_s52_compensation_charge(
-            'local-land-charge', '/', '/', 'post', valid_s52), {'errors': ['Failed to retrieve statutory provision']})
+            'local-land-charge', '/', '/', 'post', valid_s52),
+            {'errors': ['Failed to retrieve statutory provision for Land Compensation Act 1973 section 52(8) validation']})
 
     @patch('application.charge_validators.register_utils.retrieve_curie')
     def test_validate_s52_valid_json_statp_invalid(self, mock_curie_retrieve):
         mock_curie_retrieve.return_value = {"vall": "fkoefkoe"}
         self.assertEqual(charge_validators.validate_s52_compensation_charge(
-            'local-land-charge', '/', '/', 'post', valid_s52), {'errors': ['Invalid statutory provision']})
+            'local-land-charge', '/', '/', 'post', valid_s52),
+            {'errors': ['Invalid statutory provision for Land Compensation Act 1973 section 52(8) validation']})
 
     @patch('application.charge_validators.register_utils.retrieve_curie')
     def test_validate_s52_valid_json_statp_valid(self, mock_curie_retrieve):
