@@ -9,7 +9,7 @@ import ramlfications
 REGISTER_INFO = {
     "local-land-charge": {
         "raml": ramlfications.parse(app.static_folder + '/schema/local-land-charge.raml'),
-        "additional-validation": [charge_validators.validate_s8_compensation_charge, charge_validators.validate_s8_compensation_charge,
+        "additional-validation": [charge_validators.validate_s8_compensation_charge, charge_validators.validate_s52_compensation_charge,
                                   charge_validators.validate_instrument_provisions, register_validators.validate_primary_id],
         "primary-id": "local-land-charge",
         "geometry-search": True
