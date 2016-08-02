@@ -51,7 +51,7 @@ def validate_s52_compensation_charge(sub_domain, end_point, end_point_pattern, m
             if not record:
                 return {"errors": ["Failed to retrieve statutory provision for Land Compensation Act 1973 section 52(8) validation"]}
             if 'text' not in record:
-                return {"errors": ["Invalid statutory provision for Land Compensation Act 1973 section 52(8) validations"]}
+                return {"errors": ["Invalid statutory provision for Land Compensation Act 1973 section 52(8) validation"]}
             if record['text'].lower() == "Land Compensation Act 1973 section 52(8)".lower():
                 s52_provision = True
                 break
