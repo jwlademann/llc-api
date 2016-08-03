@@ -15,7 +15,7 @@ class TestRegisterValidators(unittest.TestCase):
                          {"errors": ["Primary identifier in URI must match key 'local-land-charge' in json"]})
 
     def test_validate_primary_id_no_match(self):
-        self.assertEqual(register_validators.validate_primary_id("local-land-charge", "/whatever/1", "/whatever/{dwdw}", 'put', {}),
+        self.assertEqual(register_validators.validate_primary_id("local-land-charge", "/whatever/1", "/whatever/{dwdw}", 'put', {'local-land-charge': '3'}),
                          {"errors": ["Primary identifier in URI must match key 'local-land-charge' in json"]})
 
     def test_validate_primary_id_match(self):
