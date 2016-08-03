@@ -24,6 +24,7 @@ def validate_s8_compensation_charge(sub_domain, end_point, end_point_pattern, me
                 return {"errors": ["Invalid statutory provision for Land Compensation Act 1973 section 8(4) validation"]}
             if record['text'].lower() == "Land Compensation Act 1973 section 8(4)".lower():
                 s8_provision = True
+                break
     if s8_provision and not s8_schema:
         return {'errors': ["Charges with Land Compensation Act 1973 section 8(4) provision must conform to land-compensation-charge-s8 definition"]}
     if not s8_provision and s8_schema:
@@ -39,7 +40,6 @@ def validate_s52_compensation_charge(sub_domain, end_point, end_point_pattern, m
                             resolver=register_utils.RELATIVE_RESOLVER)
         s52_schema = True
     except jsonschema.ValidationError as e:
-        print(str(e))
         s52_schema = False
     s52_provision = False
     if 'statutory-provisions' in json_payload:
