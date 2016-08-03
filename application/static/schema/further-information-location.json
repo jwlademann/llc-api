@@ -1,0 +1,33 @@
+{
+  "allOf": [
+    {
+      "$ref": "entry.json"
+    },
+    {
+      "title": "Information-Location",
+      "type": "object",
+      "properties": {
+        "further-information-location": {
+          "description": "NOTE: Unique indentifier for this charge. Do not provide when creating a charge (POST request). Only required for PUT requests",
+          "type": "string"
+        },
+        "location": {
+          "description": "Description (Address) of the information location.",
+          "type": "string"
+        },
+        "end-date": {
+          "description": "The date that the record ended/was archived",
+          "type": "string",
+          "pattern": "^([\\+-]?\\d{4}(?!\\d{2}\\b))((-?)((0[1-9]|1[0-2])(\\3([12]\\d|0[1-9]|3[01]))?|W([0-4]\\d|5[0-2])(-?[1-7])?|(00[1-9]|0[1-9]\\d|[12]\\d{2}|3([0-5]\\d|6[1-6])))([T\\s]((([01]\\d|2[0-3])((:?)[0-5]\\d)?|24\\:?00)([\\.,]\\d+(?!:))?)?(\\17[0-5]\\d([\\.,]\\d+)?)?([zZ]|([\\+-])([01]\\d|2[0-3]):?([0-5]\\d)?)?)?)?$"
+        },
+        "entry-number": {},
+        "entry-timestamp": {},
+        "item-hash": {}
+      },
+      "additionalProperties": false,
+      "required": [
+        "location"
+      ]
+    }
+  ]
+}

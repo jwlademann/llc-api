@@ -1,0 +1,131 @@
+#%RAML 0.8
+title: Local Land Charge API - Local Land Charge
+version: 0.0.1
+documentation:
+- title: Local Land Charge API - Local Land Charge
+  content: Local Land Charge API - Local Land Charge
+baseUri: "http://local-land-charge.data.gov:5001"
+
+schemas:
+  - local-land-charge-put: |
+      {
+        "allOf": [
+          { "$ref": "local-land-charge.json#" },
+          { "required": [ "local-land-charge" ] },
+          { "not": { "required": [ "entry-number"] } },
+          { "not": { "required": [ "entry-timestamp"] } },
+          { "not": { "required": [ "item-hash"] } }
+        ]
+      }
+  
+  - local-land-charge-get: |
+      {
+        "allOf": [
+          { "$ref": "local-land-charge.json#" },
+          { "required": [ "local-land-charge", "entry-number", "entry-timestamp", "item-hash", "registration-date" ] }
+        ]
+      }
+  
+  - local-land-charge-post: |
+      {
+        "allOf": [
+          { "$ref": "local-land-charge.json#" },
+          { "not": { "required": [ "local-land-charge" ] } },
+          { "not": { "required": [ "registration-date"] } },
+          { "not": { "required": [ "entry-number"] } },
+          { "not": { "required": [ "entry-timestamp"] } },
+          { "not": { "required": [ "item-hash"] } }
+        ]
+      }
+      
+  - local-land-charge-set: |
+      {
+        "type": "object",
+        "patternProperties": {
+          "\\S+": {
+            "allOf": [
+              { "$ref": "local-land-charge.json#" },
+              { "required": [ "local-land-charge", "entry-number", "entry-timestamp", "item-hash", "registration-date" ] }
+            ]
+          }
+        }
+      }
+
+  - geosearch-post: !include "geometry.json"
+      
+/record/{primary_id}:
+  uriParameters:
+    primary_id:
+      description: Unique reference of the Local Land Charge record.
+      type: string
+      required: true
+      displayName: primary_id
+  get:
+    description: Get the Local Land Charge record
+    responses:
+      200:
+        description: A specific Local Land Charge record is returned
+        body:
+          application/json:
+            schema: local-land-charge-get
+      404:
+        description: Local Land Charge not found
+  put:
+    body:
+      application/json:
+        schema: local-land-charge-put
+    description: Update the Local Land Charge record.
+    responses:
+      200:
+        description: The Local Land Charge record is returned with the updated data.
+        body:
+          application/json:
+            schema: local-land-charge-get
+      400:
+        description: Bad Request due to invalid schema. Response will include 1 or more schema errors.
+      404:
+        description: Local Land Charge not found
+        
+/records:
+  post:
+    body:
+      application/json:
+        schema: local-land-charge-post
+    description: Add a new Local Land Charge
+    responses:
+      200:
+        description: The Local Land Charge is returned on successful creation.
+        body:
+          application/json:
+            schema: local-land-charge-get
+      400:
+        description: Bad Request due to invalid schema. Response will include 1 or more schema errors
+  get:
+    description: Get the Local Land Charge records
+    responses:
+      200:
+        description: A set of Local Land Charge records is returned
+        body:
+          application/json:
+            schema: local-land-charge-set
+
+/records/geometry/{function}:
+  uriParameters:
+    geometry_function:
+      description: PostGIS function
+      type: string
+      required: true
+      displayName: function
+  post:
+    body:
+      application/json:
+        schema: geosearch-post
+    description: Search for Local land charges via a spatial search
+    responses:
+      200:
+        description: Returns a collection of local land charges
+        body:
+          application/json:
+            schema: local-land-charge-set
+      400:
+        description: Bad Request due to invalid schema. Response will include 1 or more schema errors

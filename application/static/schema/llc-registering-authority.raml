@@ -1,0 +1,105 @@
+#%RAML 0.8
+title: Local Land Charge API - Local Land Charge Registering Authority
+version: 0.0.1
+documentation:
+- title: Local Land Charge API - Local Land Charge Registering Authority
+  content: Local Land Charge API - Local Land Charge Registering Authority
+baseUri: "http://llc-registering-authority.data.gov:5001"
+
+schemas:
+  - llc-registering-authority-put: |
+      {
+        "allOf": [
+          { "$ref": "llc-registering-authority.json" },
+          { "required": [ "llc-registering-authority" ] },
+          { "not": { "required": [ "entry-number"] } },
+          { "not": { "required": [ "entry-timestamp"] } },
+          { "not": { "required": [ "item-hash"] } }
+        ]
+      }
+  
+  - llc-registering-authority-get: |
+      {
+        "allOf": [
+          { "$ref": "llc-registering-authority.json" },
+          { "required": [ "llc-registering-authority", "entry-number", "entry-timestamp", "item-hash"] }
+        ]
+      }
+  
+  - llc-registering-authority-post: |
+      {
+        "allOf": [
+          { "$ref": "llc-registering-authority.json" },
+          { "not": { "required": [ "llc-registering-authority" ] } },
+          { "not": { "required": [ "entry-number"] } },
+          { "not": { "required": [ "entry-timestamp"] } },
+          { "not": { "required": [ "item-hash"] } }
+        ]
+      }
+      
+  - llc-registering-authority-set: |
+      {
+        "type": "object",
+        "patternProperties": {
+          "\\S+": {
+            "allOf": [
+              { "$ref": "llc-registering-authority.json" },
+              { "required": [ "llc-registering-authority", "entry-number", "entry-timestamp", "item-hash" ] }
+            ]
+          }
+        }
+      }
+
+/records:
+  post:
+    body:
+      application/json:
+        schema: llc-registering-authority-post
+    description: Add a new Registering Authority
+    responses:
+      200:
+        description: The Registering Authority is returned on successful creation.
+        body:
+          application/json:
+            schema: llc-registering-authority-get
+      400:
+        description: Bad Request due to invalid schema. Response will include 1 or more schema errors
+  get:
+    description: Get the Registering Authority records
+    responses:
+      200:
+        description: A set of Registering Authorities is returned
+        body:
+          application/json:
+            schema: llc-registering-authority-set
+        
+/record/{primary_id}:
+  uriParameters:
+    primary_id:
+      description: Unique reference of the Registering Authority record.
+      type: string
+      required: true
+      displayName: primary_id
+  get:
+    description: Get the Registering Authority record
+    responses:
+      200:
+        description: A specific Registering Authority is returned
+        body:
+          application/json:
+            schema: llc-registering-authority-get
+      404:
+        description: Registering Authority not found
+  put:
+    body:
+      application/json:
+        schema: llc-registering-authority-put
+    description: Update an existing Registering Authority
+    responses:
+      200:
+        description: The Registering Authority is returned on successful creation.
+        body:
+          application/json:
+            schema: llc-registering-authority-get
+      400:
+        description: Bad Request due to invalid schema. Response will include 1 or more schema errors

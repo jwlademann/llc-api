@@ -1,0 +1,105 @@
+#%RAML 0.8
+title: Local Land Charge API - Statutory Provision
+version: 0.0.1
+documentation:
+- title: Local Land Charge API - Statutory Provision
+  content: Local Land Charge API - Statutory Provision
+baseUri: "http://statutory-provision.data.gov:5001"
+
+schemas:
+  - statutory-provision-put: |
+      {
+        "allOf": [
+          { "$ref": "statutory-provision.json#" },
+          { "required": [ "statutory-provision" ] },
+          { "not": { "required": [ "entry-number"] } },
+          { "not": { "required": [ "entry-timestamp"] } },
+          { "not": { "required": [ "item-hash"] } }
+        ]
+      }
+  
+  - statutory-provision-get: |
+      {
+        "allOf": [
+          { "$ref": "statutory-provision.json#" },
+          { "required": [ "statutory-provision", "entry-number", "entry-timestamp", "item-hash"] }
+        ]
+      }
+  
+  - statutory-provision-post: |
+      {
+        "allOf": [
+          { "$ref": "statutory-provision.json#" },
+          { "not": { "required": [ "statutory-provision" ] } },
+          { "not": { "required": [ "entry-number"] } },
+          { "not": { "required": [ "entry-timestamp"] } },
+          { "not": { "required": [ "item-hash"] } }
+        ]
+      }
+      
+  - statutory-provision-set: |
+      {
+        "type": "object",
+        "patternProperties": {
+          "\\S+": {
+            "allOf": [
+              { "$ref": "statutory-provision.json#" },
+              { "required": [ "statutory-provision", "entry-number", "entry-timestamp", "item-hash" ] }
+            ]
+          }
+        }
+      }
+  
+/records:
+  post:
+    body:
+      application/json:
+        schema: statutory-provision-post
+    description: Add a new Statutory Provision
+    responses:
+      200:
+        description: The Statutory Provision is returned on successful creation.
+        body:
+          application/json:
+            schema: statutory-provision-get
+      400:
+        description: Bad Request due to invalid schema. Response will include 1 or more schema errors
+  get:
+    description: Get the Statutory Provision records
+    responses:
+      200:
+        description: A set of Statutory Provisions is returned
+        body:
+          application/json:
+            schema: statutory-provision-set
+          
+/record/{primary_id}:
+  uriParameters:
+    primary_id:
+      description: Unique reference of the Statutory Provision record.
+      type: string
+      required: true
+      displayName: primary_id
+  get:
+    description: Get the Statutory Provision record
+    responses:
+      200:
+        description: A specific Statutory Provision is returned
+        body:
+          application/json:
+            schema: statutory-provision-get
+      404:
+        description: Statutory Provision not found
+  put:
+    body:
+      application/json:
+        schema: statutory-provision-put
+    description: Update an existing Statutory Provision
+    responses:
+      200:
+        description: The Statutory Provision is returned on successful creation.
+        body:
+          application/json:
+            schema: statutory-provision-get
+      400:
+        description: Bad Request due to invalid schema. Response will include 1 or more schema errors

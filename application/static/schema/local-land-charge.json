@@ -1,0 +1,302 @@
+{
+  "type": "object",
+  "title": "Local Land Charge",
+  "description": "Local Land Charge",
+  "oneOf": [
+    {
+      "$ref": "#/definitions/generic-charge"
+    },
+    {
+      "$ref": "#/definitions/land-compensation-charge-s8"
+    },
+    {
+      "$ref": "#/definitions/land-compensation-charge-s52"
+    }
+  ],
+  "definitions": {
+    "base-charge": {
+      "allOf": [
+        {
+          "$ref": "entry.json#"
+        },
+        {
+          "type": "object",
+          "required": [
+            "geometry",
+            "charge-type",
+            "further-information",
+            "originating-authorities"
+          ],
+          "properties": {
+            "local-land-charge": {
+              "type": "string",
+              "description": "NOTE: Unique identifier for this charge. Do not provide when creating a charge (POST request). Only required for PUT requests"
+            },
+            "geometry": {
+              "type": "object"
+            },
+            "registration-date": {
+              "description": "Date of entry on the Land Charges Register, for existing charges it is the date entered on the current register",
+              "type": "string",
+              "pattern": "^([\\+-]?\\d{4}(?!\\d{2}\\b))((-?)((0[1-9]|1[0-2])(\\3([12]\\d|0[1-9]|3[01]))?|W([0-4]\\d|5[0-2])(-?[1-7])?|(00[1-9]|0[1-9]\\d|[12]\\d{2}|3([0-5]\\d|6[1-6])))([T\\s]((([01]\\d|2[0-3])((:?)[0-5]\\d)?|24\\:?00)([\\.,]\\d+(?!:))?)?(\\17[0-5]\\d([\\.,]\\d+)?)?([zZ]|([\\+-])([01]\\d|2[0-3]):?([0-5]\\d)?)?)?)?$"
+            },
+            "charge-type": {
+              "description": "The general category of charge (e.g. Planning, Financial). A description of the general heading under which type of charge the specific charge falls. NB: For extant / migrated charges this is not necessarily the same as the part in which it has actually been registered, although in the majority of cases it will be.",
+              "type": "string",
+              "pattern": "\\S+"
+            },
+            "migrating-authority": {
+              "description": "Local Authority from which and at which the Local Land Charge was migrated. Legacy field, not required for new Local Land Charge register.",
+              "type": "string",
+              "pattern": "\\S+"
+            },
+            "old-register-part": {
+              "description": "The part of the Local Land Charges register that a Local Land Charge entry resides in prior to migration",
+              "type": "string",
+              "enum": [
+                "1",
+                "2",
+                "3b",
+                "4",
+                "6a",
+                "6b",
+                "7",
+                "8",
+                "9",
+                "10",
+                "11",
+                "12"
+              ]
+            },
+            "further-information": {
+              "type": "array",
+              "description": "The place (physical (mandatory) and virtual (optional)) where the relevant documents pertaining to a local land charge registration may be inspected and/or copies obtained.",
+              "minItems": 1,
+              "maxItems": 3,
+              "items": {
+                "type": "object",
+                "required": [
+                  "information-location"
+                ],
+                "properties": {
+                  "information-location": {
+                    "type": "string",
+                    "description": "The location where a Local Land Charge document is held, physical or digital.",
+                    "allOf": [
+                      {
+                        "$ref": "#/definitions/curie"
+                      }
+                    ]
+                  },
+                  "references": {
+                    "type": "array",
+                    "maxItems": 3,
+                    "items": {
+                      "type": "string",
+                      "pattern": "\\S+"
+                    }
+                  }
+                }
+              }
+            },
+            "creation-date": {
+              "description": "The date a Local Land Charge first came into effect. This could be the date of the instrument, the date of the decision etc.",
+              "type": "string",
+              "pattern": "^([\\+-]?\\d{4}(?!\\d{2}\\b))((-?)((0[1-9]|1[0-2])(\\3([12]\\d|0[1-9]|3[01]))?|W([0-4]\\d|5[0-2])(-?[1-7])?|(00[1-9]|0[1-9]\\d|[12]\\d{2}|3([0-5]\\d|6[1-6])))([T\\s]((([01]\\d|2[0-3])((:?)[0-5]\\d)?|24\\:?00)([\\.,]\\d+(?!:))?)?(\\17[0-5]\\d([\\.,]\\d+)?)?([zZ]|([\\+-])([01]\\d|2[0-3]):?([0-5]\\d)?)?)?)?$"
+            },
+            "expiration-date": {
+              "description": "The date on which a Land Interest in respect of a local land charge ceases to exist.",
+              "type": "string",
+              "pattern": "^([\\+-]?\\d{4}(?!\\d{2}\\b))((-?)((0[1-9]|1[0-2])(\\3([12]\\d|0[1-9]|3[01]))?|W([0-4]\\d|5[0-2])(-?[1-7])?|(00[1-9]|0[1-9]\\d|[12]\\d{2}|3([0-5]\\d|6[1-6])))([T\\s]((([01]\\d|2[0-3])((:?)[0-5]\\d)?|24\\:?00)([\\.,]\\d+(?!:))?)?(\\17[0-5]\\d([\\.,]\\d+)?)?([zZ]|([\\+-])([01]\\d|2[0-3]):?([0-5]\\d)?)?)?)?$"
+            },
+            "instrument": {
+              "description": "The document giving rise to a Local Land Charge e.g. charge, deed, agreement etc.",
+              "type": "string",
+              "pattern": "\\S+"
+            },
+            "originating-authorities": {
+              "type": "array",
+              "description": "The Minister of the Crown, government department, local authority or other person by whom the charge is brought into existence or by whom, on its coming into existence, the charge is enforceable.",
+              "items": {
+                "$ref": "#/definitions/curie"
+              }
+            },
+            "unique-property-reference-numbers": {
+              "description": "Unique Property Reference Numbers",
+              "type": "array",
+              "items": {
+                "type": "integer"
+              }
+            },
+		    "end-date": {
+		      "description": "The date that the record ended/was archived",
+		      "type": "string",
+		      "pattern": "^([\\+-]?\\d{4}(?!\\d{2}\\b))((-?)((0[1-9]|1[0-2])(\\3([12]\\d|0[1-9]|3[01]))?|W([0-4]\\d|5[0-2])(-?[1-7])?|(00[1-9]|0[1-9]\\d|[12]\\d{2}|3([0-5]\\d|6[1-6])))([T\\s]((([01]\\d|2[0-3])((:?)[0-5]\\d)?|24\\:?00)([\\.,]\\d+(?!:))?)?(\\17[0-5]\\d([\\.,]\\d+)?)?([zZ]|([\\+-])([01]\\d|2[0-3]):?([0-5]\\d)?)?)?)?$"
+		    }
+          }
+        }
+      ]
+    },
+    "generic-charge": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/base-charge"
+        },
+        {
+          "type": "object",
+          "required": [
+            "charge-description"
+          ],
+          "properties": {
+            "statutory-provisions": {
+              "type": "array",
+              "description": "The statutory provision(s) under which a local land charge has arisen, whether expressly (e.g. under s224 Highways Act 1980 or s106 Town and Country Planning Act 1990) or otherwise (e.g. conditional planning permission granted under s70 Town and Country Planning Act 1990).",
+              "maxItems": 3,
+              "items": {
+                "$ref": "#/definitions/curie"
+              }
+            },
+            "charge-description": {
+              "description": "A description of the land affected by the LLC in terms of its geographic location - i.e. it describes that depicted by an associated Polygon.",
+              "type": "string",
+              "pattern": "\\S+"
+            },
+            "local-land-charge": {},
+            "entry-number": {},
+            "entry-timestamp": {},
+            "item-hash": {},
+            "geometry": {},
+            "registration-date": {},
+            "charge-type": {},
+            "migrating-authority": {},
+            "old-register-part": {},
+            "further-information": {},
+            "creation-date": {},
+            "expiration-date": {},
+            "instrument": {},
+            "originating-authorities": {},
+            "unique-property-reference-numbers": {},
+            "end-date": {}
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "land-compensation-charge-s8": {
+      "description": "A local land charge created with a statutory provision recorded as Land Compensation Act 1973 s.8(4)",
+      "allOf": [
+        {
+          "$ref": "#/definitions/base-charge"
+        },
+        {
+          "type": "object",
+          "required": [
+            "land-description",
+            "works-particulars"
+          ],
+          "properties": {
+            "statutory-provisions": {
+              "type": "array",
+              "description": "The statutory provision(s) under which a local land charge has arisen, whether expressly (e.g. under s224 Highways Act 1980 or s106 Town and Country Planning Act 1990) or otherwise (e.g. conditional planning permission granted under s70 Town and Country Planning Act 1990).",
+              "maxItems": 1,
+              "minItems": 1,
+              "items": {
+                "$ref": "#/definitions/curie"
+              }
+            },
+            "land-description": {
+              "description": "A verbal description of the land adjoining the land compulsorily purchased for public works.",
+              "type": "string",
+              "pattern": "\\S+"
+            },
+            "works-particulars": {
+              "description": "A verbal description of the reason why the land adjoining the retained land was compulsorily acquired by an authority with compulsory purchasing powers - the particulars and extent of the works.",
+              "type": "string",
+              "pattern": "\\S+"
+            },
+            "local-land-charge": {},
+            "entry-number": {},
+            "entry-timestamp": {},
+            "item-hash": {},
+            "geometry": {},
+            "registration-date": {},
+            "charge-type": {},
+            "migrating-authority": {},
+            "old-register-part": {},
+            "further-information": {},
+            "creation-date": {},
+            "expiration-date": {},
+            "instrument": {},
+            "originating-authorities": {},
+            "unique-property-reference-numbers": {},
+            "end-date": {}
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "land-compensation-charge-s52": {
+      "description": "A local land charge created with a statutory provision recorded as Land Compensation Act 1973 s.52(8)",
+      "allOf": [
+        {
+          "$ref": "#/definitions/base-charge"
+        },
+        {
+          "type": "object",
+          "required": [
+            "charge-description",
+            "capacity-description",
+            "compensation-paid"
+          ],
+          "properties": {
+            "statutory-provisions": {
+              "type": "array",
+              "description": "The statutory provision(s) under which a local land charge has arisen, whether expressly (e.g. under s224 Highways Act 1980 or s106 Town and Country Planning Act 1990) or otherwise (e.g. conditional planning permission granted under s70 Town and Country Planning Act 1990).",
+              "maxItems": 1,
+              "minItems": 1,
+              "items": {
+                "$ref": "#/definitions/curie"
+              }
+            },
+            "charge-description": {
+              "description": "A description of the land affected by the LLC in terms of its geographic location - i.e. it describes that depicted by an associated Polygon.",
+              "type": "string",
+              "pattern": "\\S+"
+            },
+            "capacity-description": {
+              "description": "A description of the capacity in which the land was acquired; e.g. freehold.",
+              "type": "string",
+              "pattern": "\\S+"
+            },
+            "compensation-paid": {
+              "description": "Amount already paid to the landowner from which the land was acquired in respect of damages to his retained land and the total sum agreed.",
+              "type": "string",
+              "pattern": "\\S+"
+            },
+            "local-land-charge": {},
+            "entry-number": {},
+            "entry-timestamp": {},
+            "item-hash": {},
+            "geometry": {},
+            "registration-date": {},
+            "charge-type": {},
+            "migrating-authority": {},
+            "further-information": {},
+            "creation-date": {},
+            "expiration-date": {},
+            "instrument": {},
+            "originating-authorities": {},
+            "unique-property-reference-numbers": {},
+            "end-date": {}
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "curie": {
+      "description": "Abbreviated syntax for a URI, consisting of the name of the register followed by a colon, and then the primary identifier of the record. For example 'local-land-charge:123'",
+      "type": "string",
+      "pattern": "\\S+:\\S+"
+    }
+  }
+}

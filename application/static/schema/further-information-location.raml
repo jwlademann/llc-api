@@ -1,0 +1,105 @@
+#%RAML 0.8
+title: Local Land Charge API - Further Information Location
+version: 0.0.1
+documentation:
+- title: Local Land Charge API - Further Information Location
+  content: Local Land Charge API - Further Information Location
+baseUri: "http://further-information-location.data.gov:5001"
+
+schemas:
+  - further-information-location-put: |
+      {
+        "allOf": [
+          { "$ref": "further-information-location.json" },
+          { "required": [ "further-information-location" ] },
+          { "not": { "required": [ "entry-number"] } },
+          { "not": { "required": [ "entry-timestamp"] } },
+          { "not": { "required": [ "item-hash"] } }
+        ]
+      }
+  
+  - further-information-location-get: |
+      {
+        "allOf": [
+          { "$ref": "further-information-location.json" },
+          { "required": [ "further-information-location", "entry-number", "entry-timestamp", "item-hash"] }
+        ]
+      }
+  
+  - further-information-location-post: |
+      {
+        "allOf": [
+          { "$ref": "further-information-location.json" },
+          { "not": { "required": [ "further-information-location" ] } },
+          { "not": { "required": [ "entry-number"] } },
+          { "not": { "required": [ "entry-timestamp"] } },
+          { "not": { "required": [ "item-hash"] } }
+        ]
+      }
+      
+  - further-information-location-set: |
+      {
+        "type": "object",
+        "patternProperties": {
+          "\\S+": {
+            "allOf": [
+              { "$ref": "further-information-location.json" },
+              { "required": [ "further-information-location", "entry-number", "entry-timestamp", "item-hash" ] }
+            ]
+          }
+        }
+      }
+      
+/records:
+  post:
+    body:
+      application/json:
+        schema: further-information-location-post
+    description: Add a new Information Location
+    responses:
+      200:
+        description: The further information location is returned on successful creation.
+        body:
+          application/json:
+            schema: further-information-location-get
+      400:
+        description: Bad Request due to invalid schema. Response will include 1 or more schema errors
+  get:
+    description: Get the Information Location records
+    responses:
+      200:
+        description: A set Information Locations is returned
+        body:
+          application/json:
+            schema: further-information-location-set
+       
+/record/{primary_id}:
+  uriParameters:
+    primary_id:
+      description: Unique reference of the information location record.
+      type: string
+      required: true
+      displayName: primary_id
+  get:
+    description: Get the Information Location record
+    responses:
+      200:
+        description: A specific Information Location is returned
+        body:
+          application/json:
+            schema: further-information-location-get
+      404:
+        description: Information-Location not found
+  put:
+    body:
+      application/json:
+        schema: further-information-location-put
+    description: Update an existing Information Location
+    responses:
+      200:
+        description: The information location is returned on successful update.
+        body:
+          application/json:
+            schema: further-information-location-get
+      400:
+        description: Bad Request due to invalid schema. Response will include 1 or more schema errors
