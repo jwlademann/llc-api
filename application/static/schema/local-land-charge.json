@@ -25,7 +25,7 @@
             "geometry",
             "charge-type",
             "further-information",
-            "originating-authorities"
+            "originating-authority"
           ],
           "properties": {
             "local-land-charge": {
@@ -114,12 +114,14 @@
               "type": "string",
               "pattern": "\\S+"
             },
-            "originating-authorities": {
-              "type": "array",
+            "originating-authority": {
+              "type": "string",
               "description": "The Minister of the Crown, government department, local authority or other person by whom the charge is brought into existence or by whom, on its coming into existence, the charge is enforceable.",
-              "items": {
-                "$ref": "#/definitions/curie"
-              }
+              "allOf": [
+                {
+                  "$ref": "#/definitions/curie"
+                }
+              ]
             },
             "unique-property-reference-numbers": {
               "description": "Unique Property Reference Numbers",
@@ -174,7 +176,7 @@
             "creation-date": {},
             "expiration-date": {},
             "instrument": {},
-            "originating-authorities": {},
+            "originating-authority": {},
             "unique-property-reference-numbers": {},
             "end-date": {}
           },
@@ -227,7 +229,7 @@
             "creation-date": {},
             "expiration-date": {},
             "instrument": {},
-            "originating-authorities": {},
+            "originating-authority": {},
             "unique-property-reference-numbers": {},
             "end-date": {}
           },
@@ -285,7 +287,7 @@
             "creation-date": {},
             "expiration-date": {},
             "instrument": {},
-            "originating-authorities": {},
+            "originating-authority": {},
             "unique-property-reference-numbers": {},
             "end-date": {}
           },
