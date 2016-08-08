@@ -24,9 +24,7 @@ valid_s8 = {
         ],
         "type": "Point"
     },
-    "originating-authorities": [
-        "djwioqdqw:12"
-    ],
+    "originating-authority": "djwioqdqw:12",
     "statutory-provisions": ["statutory-provision:123"],
     "land-description": "fkfjoekfoe",
     "works-particulars": "fkoekfeofke"
@@ -53,9 +51,7 @@ valid_s52 = {
         ],
         "type": "Point"
     },
-    "originating-authorities": [
-        "djwioqdqw:12"
-    ],
+    "originating-authority": "djwioqdqw:12",
     "statutory-provisions": ["statutory-provision:123"],
     "charge-description": "kfeofkeo",
     "capacity-description": "kfoekfoe",
