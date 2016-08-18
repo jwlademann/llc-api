@@ -7,7 +7,7 @@ Data is validated using [JSON Schema](http://json-schema.org) and [RAML](http://
 
 ## Using the API
 
-The API provides four interfaces to the four registers of the Local Land Charges Service. The API implements the GDS Registers specification, allowing users to create new records and update existing records.
+The API provides four interfaces to the four registers of the Local Land Charges Service. The API implements the [GDS Registers specification](https://openregister.github.io/specification), allowing users to create new records and update existing records.
 
 The registers are accessed via HTTP endpoints in the following format:
 - Local Land Charges register: `http://local-land-charge/`
