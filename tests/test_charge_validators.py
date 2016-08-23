@@ -1,7 +1,10 @@
 import unittest
 
-from application import register_utils, charge_validators
+from application import app, register_utils, charge_validators
 from mock import patch
+
+LAND_COMP_ACT_S8 = app.config['LAND_COMP_ACT_S8']
+LAND_COMP_ACT_S52 = app.config['LAND_COMP_ACT_S52']
 
 valid_s8 = {
     "charge-type": "dwqdqw",
@@ -76,18 +79,18 @@ class TestChargeValidatorsS8(unittest.TestCase):
         mock_curie_retrieve.return_value = None
         self.assertEqual(charge_validators.validate_s8_compensation_charge(
             'local-land-charge', '/', '/', 'post', valid_s8),
-            {'errors': ['Failed to retrieve statutory provision for Land Compensation Act 1973 section 8(4) validation']})
+            {'errors': ['Failed to retrieve statutory provision for ' + LAND_COMP_ACT_S8 + ' validation']})
 
     @patch('application.charge_validators.register_utils.retrieve_curie')
     def test_validate_s8_valid_json_statp_invalid(self, mock_curie_retrieve):
         mock_curie_retrieve.return_value = {"vall": "fkoefkoe"}
         self.assertEqual(charge_validators.validate_s8_compensation_charge(
             'local-land-charge', '/', '/', 'post', valid_s8),
-            {'errors': ['Invalid statutory provision for Land Compensation Act 1973 section 8(4) validation']})
+            {'errors': ['Invalid statutory provision for ' + LAND_COMP_ACT_S8 + ' validation']})
 
     @patch('application.charge_validators.register_utils.retrieve_curie')
     def test_validate_s8_valid_json_statp_valid(self, mock_curie_retrieve):
-        mock_curie_retrieve.return_value = {"text": "Land ComPENsation Act 1973 section 8(4)"}
+        mock_curie_retrieve.return_value = {"text": LAND_COMP_ACT_S8.upper()}
         self.assertEqual(charge_validators.validate_s8_compensation_charge(
             'local-land-charge', '/', '/', 'post', valid_s8), {'errors': []})
 
@@ -96,14 +99,14 @@ class TestChargeValidatorsS8(unittest.TestCase):
         mock_curie_retrieve.return_value = {"text": "fneiofjewoif"}
         self.assertEqual(charge_validators.validate_s8_compensation_charge(
             'local-land-charge', '/', '/', 'post', valid_s8),
-            {'errors': ["Charges which conform to land-compensation-charge-s8 definition must contain Land Compensation Act 1973 section 8(4) provision"]})
+            {'errors': ["Charges which conform to land-compensation-charge-s8 definition must contain " + LAND_COMP_ACT_S8 + " provision"]})
 
     @patch('application.charge_validators.register_utils.retrieve_curie')
     def test_validate_s8_invalid_json_statp_valid(self, mock_curie_retrieve):
-        mock_curie_retrieve.return_value = {"text": "Land ComPENsation Act 1973 section 8(4)"}
+        mock_curie_retrieve.return_value = {"text": LAND_COMP_ACT_S8.upper()}
         self.assertEqual(charge_validators.validate_s8_compensation_charge(
             'local-land-charge', '/', '/', 'post', {"statutory-provisions": ["statutory-provision:123"]}),
-            {'errors': ["Charges with Land Compensation Act 1973 section 8(4) provision must conform to land-compensation-charge-s8 definition"]})
+            {'errors': ["Charges with " + LAND_COMP_ACT_S8 + " provision must conform to land-compensation-charge-s8 definition"]})
 
 
 class TestChargeValidatorsS52(unittest.TestCase):
@@ -121,18 +124,18 @@ class TestChargeValidatorsS52(unittest.TestCase):
         mock_curie_retrieve.return_value = None
         self.assertEqual(charge_validators.validate_s52_compensation_charge(
             'local-land-charge', '/', '/', 'post', valid_s52),
-            {'errors': ['Failed to retrieve statutory provision for Land Compensation Act 1973 section 52(8) validation']})
+            {'errors': ['Failed to retrieve statutory provision for ' + LAND_COMP_ACT_S52 + ' validation']})
 
     @patch('application.charge_validators.register_utils.retrieve_curie')
     def test_validate_s52_valid_json_statp_invalid(self, mock_curie_retrieve):
         mock_curie_retrieve.return_value = {"vall": "fkoefkoe"}
         self.assertEqual(charge_validators.validate_s52_compensation_charge(
             'local-land-charge', '/', '/', 'post', valid_s52),
-            {'errors': ['Invalid statutory provision for Land Compensation Act 1973 section 52(8) validation']})
+            {'errors': ['Invalid statutory provision for ' + LAND_COMP_ACT_S52 + ' validation']})
 
     @patch('application.charge_validators.register_utils.retrieve_curie')
     def test_validate_s52_valid_json_statp_valid(self, mock_curie_retrieve):
-        mock_curie_retrieve.return_value = {"text": "Land Compensation Act 1973 section 52(8)"}
+        mock_curie_retrieve.return_value = {"text": LAND_COMP_ACT_S52}
         self.assertEqual(charge_validators.validate_s52_compensation_charge(
             'local-land-charge', '/', '/', 'post', valid_s52), {'errors': []})
 
@@ -141,14 +144,14 @@ class TestChargeValidatorsS52(unittest.TestCase):
         mock_curie_retrieve.return_value = {"text": "fneiofjewoif"}
         self.assertEqual(charge_validators.validate_s52_compensation_charge(
             'local-land-charge', '/', '/', 'post', valid_s52),
-            {'errors': ["Charges which conform to land-compensation-charge-s52 definition must contain Land Compensation Act 1973 section 52(8) provision"]})
+            {'errors': ["Charges which conform to land-compensation-charge-s52 definition must contain " + LAND_COMP_ACT_S52 + " provision"]})
 
     @patch('application.charge_validators.register_utils.retrieve_curie')
     def test_validate_s52_invalid_json_statp_valid(self, mock_curie_retrieve):
-        mock_curie_retrieve.return_value = {"text": "Land Compensation Act 1973 section 52(8)"}
+        mock_curie_retrieve.return_value = {"text": LAND_COMP_ACT_S52}
         self.assertEqual(charge_validators.validate_s52_compensation_charge(
             'local-land-charge', '/', '/', 'post', {"statutory-provisions": ["statutory-provision:123"]}),
-            {'errors': ["Charges with Land Compensation Act 1973 section 52(8) provision must conform to land-compensation-charge-s52 definition"]})
+            {'errors': ["Charges with " + LAND_COMP_ACT_S52 + " provision must conform to land-compensation-charge-s52 definition"]})
 
 
 class TestChargeValidatorInstrumentProvisions(unittest.TestCase):
