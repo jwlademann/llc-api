@@ -12,7 +12,7 @@ REGISTER_INFO = {
         "additional-validation": [register_validators.validate_primary_id, register_validators.validate_archive_update,
                                   charge_validators.validate_s8_compensation_charge, charge_validators.validate_s52_compensation_charge,
                                   charge_validators.validate_instrument_provisions, charge_validators.validate_statutory_provisions,
-                                  charge_validators.validate_registration_date],
+                                  charge_validators.validate_registration_date, charge_validators.validate_further_information],
         "primary-id": "local-land-charge",
         "geometry-search": True
     },

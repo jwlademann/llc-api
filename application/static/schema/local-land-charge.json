@@ -73,6 +73,7 @@
               "description": "The place (physical (mandatory) and virtual (optional)) where the relevant documents pertaining to a local land charge registration may be inspected and/or copies obtained.",
               "minItems": 1,
               "maxItems": 3,
+              "uniqueItems": true,
               "items": {
                 "type": "object",
                 "required": [

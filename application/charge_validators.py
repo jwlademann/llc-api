@@ -133,3 +133,14 @@ def validate_registration_date(sub_domain, end_point, end_point_pattern, method,
              ('registration-date' in json_payload and 'registration-date' not in record):
             errors.append("Cannot update field 'registration-date'")
     return {'errors': errors}
+
+
+def validate_further_information(sub_domain, end_point, end_point_pattern, method, json_payload):
+    """Validate uniqueness of further information
+    """
+    errors = []
+    if 'further-information' in json_payload and json_payload['further-information']:
+        locations = [x['information-location'] for x in json_payload['further-information']]
+        if len(locations) != len(set(locations)):
+            errors.append("Further information locations must be unique")
+    return {'errors': errors}
