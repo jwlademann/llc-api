@@ -156,7 +156,8 @@
               "maxItems": 3,
               "items": {
                 "$ref": "#/definitions/curie"
-              }
+              },
+              "uniqueItems": true
             },
             "charge-description": {
               "description": "A description of the land affected by the LLC in terms of its geographic location - i.e. it describes that depicted by an associated Polygon.",
