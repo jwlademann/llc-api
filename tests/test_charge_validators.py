@@ -261,3 +261,20 @@ class TestValidateRegistrationDate(unittest.TestCase):
         self.assertEqual(charge_validators.validate_registration_date(
             'local-land-charge', 'blah', 'blah', 'put', json),
             {'errors': ["Cannot update field 'registration-date'"]})
+
+
+class TestValidateFurtherInformation(unittest.TestCase):
+
+    def test_validate_further_information_dupe(self):
+        json = {"local-land-charge": "1", "further-information": [{"information-location": "dwqdwqd:123", "references": []},
+                                                                  {"information-location": "dwqdwqd:123", "references": ["areference"]}]}
+        self.assertEqual(charge_validators.validate_further_information(
+            'local-land-charge', 'blah', 'blah', 'put', json),
+            {'errors': ['Further information locations must be unique']})
+
+    def test_validate_further_information_ok(self):
+        json = {"local-land-charge": "1", "further-information": [{"information-location": "dwqdwqd:123", "references": []},
+                                                                  {"information-location": "dwqdwhqd:123", "references": ["areference"]}]}
+        self.assertEqual(charge_validators.validate_further_information(
+            'local-land-charge', 'blah', 'blah', 'put', json),
+            {'errors': []})
