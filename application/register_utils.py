@@ -9,32 +9,37 @@ import ramlfications
 REGISTER_INFO = {
     "local-land-charge": {
         "raml": ramlfications.parse(app.static_folder + '/schema/local-land-charge.raml'),
-        "additional-validation": [charge_validators.validate_s8_compensation_charge, charge_validators.validate_s52_compensation_charge,
-                                  charge_validators.validate_instrument_provisions, register_validators.validate_primary_id],
+        "additional-validation": [register_validators.validate_primary_id, register_validators.validate_archive_update,
+                                  charge_validators.validate_s8_compensation_charge, charge_validators.validate_s52_compensation_charge,
+                                  charge_validators.validate_instrument_provisions, charge_validators.validate_statutory_provisions,
+                                  charge_validators.validate_registration_date],
         "primary-id": "local-land-charge",
         "geometry-search": True
     },
     "further-information-location": {
         "raml": ramlfications.parse(app.static_folder + '/schema/further-information-location.raml'),
-        "additional-validation": [register_validators.validate_primary_id],
+        "additional-validation": [register_validators.validate_primary_id, register_validators.validate_archive_update],
         "primary-id": "further-information-location",
         "geometry-search": False
     },
     "llc-registering-authority": {
         "raml": ramlfications.parse(app.static_folder + '/schema/llc-registering-authority.raml'),
-        "additional-validation": [register_validators.validate_primary_id],
+        "additional-validation": [register_validators.validate_primary_id, register_validators.validate_archive_update],
         "primary-id": "llc-registering-authority",
         "geometry-search": False
     },
     "statutory-provision": {
         "raml": ramlfications.parse(app.static_folder + '/schema/statutory-provision.raml'),
-        "additional-validation": [register_validators.validate_primary_id],
+        "additional-validation": [register_validators.validate_primary_id, register_validators.validate_archive_update],
         "primary-id": "statutory-provision",
         "geometry-search": False
     }
 }
 # Resolver to get json schemas from relative paths
 RELATIVE_RESOLVER = jsonschema.RefResolver('file://' + app.static_folder + '/schema/', None)
+
+# Cache dictionary for curies to reduce amount of calls
+CURIE_CACHE = {}
 
 
 def validate_json(sub_domain, end_point_pattern, method, json_payload):
@@ -82,18 +87,23 @@ def validate_json(sub_domain, end_point_pattern, method, json_payload):
 def additional_validation(sub_domain, end_point, end_point_pattern, method, json_payload):
     """Perform additional validation based on given parameters
     """
+    # Reset curie cache
+    CURIE_CACHE.clear()
     if sub_domain not in REGISTER_INFO:
         return {"errors": ['invalid sub-domain']}
     error_return = []
     for validator in REGISTER_INFO[sub_domain]["additional-validation"]:
         result = validator(sub_domain, end_point, end_point_pattern, method, json_payload)
         error_return = error_return + result['errors']
+    CURIE_CACHE.clear()
     return {"errors": error_return}
 
 
 def retrieve_curie(curie):
     """Lookup the given curie and return record if found/valid, else return None
     """
+    if curie in CURIE_CACHE:
+        return CURIE_CACHE[curie]
     register, primary_id = curie.split(':')
     if register not in REGISTER_INFO:
         raise Exception("Invalid register name '{}'".format(register))
@@ -101,7 +111,9 @@ def retrieve_curie(curie):
     if response.status_code == 404:
         return None
     if response.status_code == 200:
-        return response.json()
+        record = response.json()
+        CURIE_CACHE[curie] = record
+        return record
     response.raise_for_status()
 
 

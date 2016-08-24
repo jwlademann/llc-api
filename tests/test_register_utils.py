@@ -45,6 +45,9 @@ class TestRegisterUtilsAdditionalValidation(unittest.TestCase):
 
 class TestRegisterUtilsRetrieveCurie(unittest.TestCase):
 
+    def setUp(self):
+        register_utils.CURIE_CACHE.clear()
+
     def test_retrieve_curie_invalid_subdomain(self):
         exc = None
         try:
@@ -80,6 +83,17 @@ class TestRegisterUtilsRetrieveCurie(unittest.TestCase):
         except Exception as e:
             exc = e
         self.assertEqual(str(exc), "A 500")
+
+    @patch('application.register_utils.register_request')
+    def test_retrieve_curie_cache(self, mock_register_request):
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = {"thing": "ame"}
+        mock_register_request.side_effect = [mock_response, None]
+        result1 = register_utils.retrieve_curie("local-land-charge:123")
+        result2 = register_utils.retrieve_curie("local-land-charge:123")
+        self.assertEqual(result1, result2)
+        self.assertEqual(result1, {"thing": "ame"})
 
 
 class TestRegisterUtilsRegisterRequest(unittest.TestCase):
