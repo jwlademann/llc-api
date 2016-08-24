@@ -26,8 +26,8 @@ To create a new Local land charge record it must conform to the following Schema
 ### Usage
 
 ```
-GET     local-land-charge/                               -- retrieves all Local Land Charge records currently in the register
-GET     local-land-charge/<id-number>                    -- retrieves a specific record by the id number
+GET     local-land-charge/records                               -- retrieves all Local Land Charge records currently in the register
+GET     local-land-charge/record/<id-number>                    -- retrieves a specific record by the id number
 POST    local-land-charge/records/                       -- creates a new record in the register. Data supplied as JSON reflecting the schema
 PUT     local-land-charge/record/<id-number>             -- update the record specified by the id number. Data supplied as JSON reflecting the schema
 ```
@@ -41,8 +41,8 @@ To create a new statutory provision record it must conform to the following Sche
 ### Usage
 
 ```
-GET     statutory-provision/                               -- retrieves all Statutory Provision records currently in the register
-GET     statutory-provision/<id-number>                    -- retrieves a specific record by the id number
+GET     statutory-provision/records                               -- retrieves all Statutory Provision records currently in the register
+GET     statutory-provision/record/<id-number>                    -- retrieves a specific record by the id number
 POST    statutory-provision/records/                       -- creates a new record in the register. Data supplied as JSON reflecting the schema
 PUT     statutory-provision/record/<id-number>             -- update the record specified by the id number. Data supplied as JSON reflecting the schema
 ```
@@ -56,8 +56,8 @@ To create a new registering authority record it must conform to the following Sc
 ### Usage
 
 ```
-GET     llc-registering-authority/                               -- retrieves all Registering Authority records currently in the register
-GET     llc-registering-authority/<id-number>                    -- retrieves a specific record by the id number
+GET     llc-registering-authority/records                               -- retrieves all Registering Authority records currently in the register
+GET     llc-registering-authority/record/<id-number>                    -- retrieves a specific record by the id number
 POST    llc-registering-authority/records/                       -- creates a new record in the register. Data supplied as JSON reflecting the schema
 PUT     llc-registering-authority/record/<id-number>             -- update the record specified by the id number. Data supplied as JSON reflecting the schema
 ```
@@ -71,8 +71,8 @@ To create a new further information location record it must conform to the follo
 ### Usage
 
 ```
-GET     further-information-location/                               -- retrieves all Registering Authority records currently in the register
-GET     further-information-location/<id-number>                    -- retrieves a specific record by the id number
+GET     further-information-location/records                               -- retrieves all Registering Authority records currently in the register
+GET     further-information-location/record/<id-number>                    -- retrieves a specific record by the id number
 POST    further-information-location/records/                       -- creates a new record in the register. Data supplied as JSON reflecting the schema
 PUT     further-information-location/record/<id-number>             -- update the record specified by the id number. Data supplied as JSON reflecting the schema
 ```
