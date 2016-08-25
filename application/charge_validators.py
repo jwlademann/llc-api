@@ -2,8 +2,12 @@ from application import register_utils, app
 import jsonschema
 
 
-LAND_COMP_ACT_S8 = app.config['LAND_COMP_ACT_S8']
-LAND_COMP_ACT_S52 = app.config['LAND_COMP_ACT_S52']
+LAND_COMP_ACT_S8 = '{} {} {}'.format(app.config['LAND_COMP_ACT_S8_INSTRUMENT'],
+                                     app.config['LAND_COMP_ACT_S8_YEAR'],
+                                     app.config['LAND_COMP_ACT_S8_PROVISION'])
+LAND_COMP_ACT_S52 = '{} {} {}'.format(app.config['LAND_COMP_ACT_S52_INSTRUMENT'],
+                                      app.config['LAND_COMP_ACT_S52_YEAR'],
+                                      app.config['LAND_COMP_ACT_S52_PROVISION'])
 
 
 def validate_s8_compensation_charge(sub_domain, end_point, end_point_pattern, method, json_payload):
@@ -26,9 +30,9 @@ def validate_s8_compensation_charge(sub_domain, end_point, end_point_pattern, me
                 record = None
             if not record:
                 errors.append("Failed to retrieve statutory provision '{}' for {} validation".format(stat_prov, LAND_COMP_ACT_S8))
-            elif 'text' not in record:
+            elif 'provision' not in record and 'statutory-instrument' not in record and 'year' not in record:
                 errors.append("Invalid statutory provision '{}' for {} validation".format(stat_prov, LAND_COMP_ACT_S8))
-            elif record['text'].lower() == LAND_COMP_ACT_S8.lower():
+            elif '{} {} {}'.format(record['statutory-instrument'], record['year'], record['provision']).lower() == LAND_COMP_ACT_S8.lower():
                 s8_provision = True
                 break
     if s8_provision and not s8_schema:
@@ -58,9 +62,9 @@ def validate_s52_compensation_charge(sub_domain, end_point, end_point_pattern, m
                 record = None
             if not record:
                 errors.append("Failed to retrieve statutory provision '{}' for {} validation".format(stat_prov, LAND_COMP_ACT_S52))
-            elif 'text' not in record:
+            elif 'provision' not in record and 'statutory-instrument' not in record and 'year' not in record:
                 errors.append("Invalid statutory provision '{}' for {} validation".format(stat_prov, LAND_COMP_ACT_S52))
-            elif record['text'].lower() == LAND_COMP_ACT_S52.lower():
+            elif '{} {} {}'.format(record['statutory-instrument'], record['year'], record['provision']).lower() == LAND_COMP_ACT_S52.lower():
                 s52_provision = True
                 break
     if s52_provision and not s52_schema:
@@ -91,7 +95,7 @@ def validate_statutory_provisions(sub_domain, end_point, end_point_pattern, meth
                 record = None
             if not record:
                 errors.append("Failed to retrieve statutory provision '{}' for statutory provision validation".format(stat_prov))
-            elif 'text' not in record:
+            elif 'provision' not in record and 'statutory-instrument' not in record and 'year' not in record:
                 errors.append("Invalid statutory provision '{}' for statutory provision validation".format(stat_prov))
             elif method.lower() == 'post' and 'end-date' in record and record['end-date']:
                 errors.append("New charges cannot use archived statutory provision '{}'".format(stat_prov))

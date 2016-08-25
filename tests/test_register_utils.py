@@ -19,7 +19,9 @@ class TestRegisterUtilsValidateJson(unittest.TestCase):
                          {"errors": ['cannot find schema in RAML resource definition']})
 
     def test_validate_json_valid(self):
-        self.assertEqual(register_utils.validate_json('statutory-provision', "/records", "post", {"text": "a provision"}),
+        self.assertEqual(register_utils.validate_json('statutory-provision', "/records", "post", {"provision": "section",
+                                                                                                  "statutory-instrument": "Act",
+                                                                                                  "year": "1900"}),
                          {"errors": []})
 
     def test_validate_json_invalid(self):
