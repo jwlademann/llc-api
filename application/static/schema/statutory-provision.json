@@ -11,8 +11,16 @@
           "description": "NOTE: Unique indentifier for this charge. Do not provide when creating a charge (POST request). Only required for PUT requests",
           "type": "string"
         },
-        "text": {
-          "description": "The legal provisions which give authority to Local Land Charges.",
+        "provision": {
+          "description": "The section of the act the provision applies to. (e.g. section 156)",
+          "type": "string"
+        },
+        "statutory-instrument": {
+          "description": "The Act the statutory provision is part of. (e.g. Housing Act)",
+          "type": "string"
+        },
+        "year": {
+          "description": "The year the statutory provision was introduced. (e.g. 1985)",
           "type": "string"
         },
         "end-date": {
@@ -26,7 +34,7 @@
       },
       "additionalProperties": false,
       "required": [
-        "text"
+        "provision", "statutory-instrument", "year"
       ]
     }
   ]
