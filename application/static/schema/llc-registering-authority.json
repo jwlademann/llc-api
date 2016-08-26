@@ -12,8 +12,12 @@
           "type": "string"
         },
         "name": {
-          "description": "The name of the Local Authority",
+          "description": "The name of the authority",
           "type": "string"
+        },
+        "authority-type": {
+          "description": "The type of the authority",
+          "enum": [ "Local Authority", "Non-Local Authority" ]
         },
         "end-date": {
           "description": "The date that the record ended/was archived",
@@ -26,7 +30,7 @@
       },
       "additionalProperties": false,
       "required": [
-        "name"
+        "name", "authority-type"
       ]
     }
   ]
