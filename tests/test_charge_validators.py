@@ -3,8 +3,24 @@ import unittest
 from application import app, register_utils, charge_validators
 from mock import patch
 
-LAND_COMP_ACT_S8 = app.config['LAND_COMP_ACT_S8']
-LAND_COMP_ACT_S52 = app.config['LAND_COMP_ACT_S52']
+LAND_COMP_ACT_S8 = '{} {} {}'.format(app.config['LAND_COMP_ACT_S8_INSTRUMENT'],
+                                     app.config['LAND_COMP_ACT_S8_YEAR'],
+                                     app.config['LAND_COMP_ACT_S8_PROVISION'])
+LAND_COMP_ACT_S52 = '{} {} {}'.format(app.config['LAND_COMP_ACT_S52_INSTRUMENT'],
+                                      app.config['LAND_COMP_ACT_S52_YEAR'],
+                                      app.config['LAND_COMP_ACT_S52_PROVISION'])
+
+land_compensation_act_s8 = {
+    "provision": app.config['LAND_COMP_ACT_S8_PROVISION'],
+    "statutory-instrument": app.config['LAND_COMP_ACT_S8_INSTRUMENT'],
+    "year": app.config['LAND_COMP_ACT_S8_YEAR']
+}
+
+land_compensation_act_s52 = {
+    "provision": app.config['LAND_COMP_ACT_S52_PROVISION'],
+    "statutory-instrument": app.config['LAND_COMP_ACT_S52_INSTRUMENT'],
+    "year": app.config['LAND_COMP_ACT_S52_YEAR']
+}
 
 valid_s8 = {
     "charge-type": "dwqdqw",
@@ -96,20 +112,22 @@ class TestChargeValidatorsS8(unittest.TestCase):
 
     @patch('application.charge_validators.register_utils.retrieve_curie')
     def test_validate_s8_valid_json_statp_valid(self, mock_curie_retrieve):
-        mock_curie_retrieve.return_value = {"text": LAND_COMP_ACT_S8.upper()}
+        mock_curie_retrieve.return_value = land_compensation_act_s8
         self.assertEqual(charge_validators.validate_s8_compensation_charge(
             'local-land-charge', '/', '/', 'post', valid_s8), {'errors': []})
 
     @patch('application.charge_validators.register_utils.retrieve_curie')
     def test_validate_s8_valid_json_statp_nots8(self, mock_curie_retrieve):
-        mock_curie_retrieve.return_value = {"text": "fneiofjewoif"}
+        mock_curie_retrieve.return_value = {"provision": "section",
+                                            "statutory-instrument": "Act",
+                                            "year": "1900"}
         self.assertEqual(charge_validators.validate_s8_compensation_charge(
             'local-land-charge', '/', '/', 'post', valid_s8),
             {'errors': ["Charges which conform to land-compensation-charge-s8 definition must contain " + LAND_COMP_ACT_S8 + " provision"]})
 
     @patch('application.charge_validators.register_utils.retrieve_curie')
     def test_validate_s8_invalid_json_statp_valid(self, mock_curie_retrieve):
-        mock_curie_retrieve.return_value = {"text": LAND_COMP_ACT_S8.upper()}
+        mock_curie_retrieve.return_value = land_compensation_act_s8
         self.assertEqual(charge_validators.validate_s8_compensation_charge(
             'local-land-charge', '/', '/', 'post', {"statutory-provisions": ["statutory-provision:123"]}),
             {'errors': ["Charges with " + LAND_COMP_ACT_S8 + " provision must conform to land-compensation-charge-s8 definition"]})
@@ -146,20 +164,22 @@ class TestChargeValidatorsS52(unittest.TestCase):
 
     @patch('application.charge_validators.register_utils.retrieve_curie')
     def test_validate_s52_valid_json_statp_valid(self, mock_curie_retrieve):
-        mock_curie_retrieve.return_value = {"text": LAND_COMP_ACT_S52}
+        mock_curie_retrieve.return_value = land_compensation_act_s52
         self.assertEqual(charge_validators.validate_s52_compensation_charge(
             'local-land-charge', '/', '/', 'post', valid_s52), {'errors': []})
 
     @patch('application.charge_validators.register_utils.retrieve_curie')
     def test_validate_s52_valid_json_statp_nots8(self, mock_curie_retrieve):
-        mock_curie_retrieve.return_value = {"text": "fneiofjewoif"}
+        mock_curie_retrieve.return_value = {"provision": "section 1",
+                                            "statutory-instrument": "a provision",
+                                            "year": "1066"}
         self.assertEqual(charge_validators.validate_s52_compensation_charge(
             'local-land-charge', '/', '/', 'post', valid_s52),
             {'errors': ["Charges which conform to land-compensation-charge-s52 definition must contain " + LAND_COMP_ACT_S52 + " provision"]})
 
     @patch('application.charge_validators.register_utils.retrieve_curie')
     def test_validate_s52_invalid_json_statp_valid(self, mock_curie_retrieve):
-        mock_curie_retrieve.return_value = {"text": LAND_COMP_ACT_S52}
+        mock_curie_retrieve.return_value = land_compensation_act_s52
         self.assertEqual(charge_validators.validate_s52_compensation_charge(
             'local-land-charge', '/', '/', 'post', {"statutory-provisions": ["statutory-provision:123"]}),
             {'errors': ["Charges with " + LAND_COMP_ACT_S52 + " provision must conform to land-compensation-charge-s52 definition"]})
@@ -198,21 +218,29 @@ class TestValidateStatutoryProvisions(unittest.TestCase):
 
     @patch('application.charge_validators.register_utils.retrieve_curie')
     def test_validate_statutory_provisions_archived_post(self, mock_curie_retrieve):
-        mock_curie_retrieve.return_value = {"text": "field", "end-date": "something"}
+        mock_curie_retrieve.return_value = {"provision": "section",
+                                            "statutory-instrument": "Act",
+                                            "year": "1900", "end-date": "something"}
         self.assertEqual(charge_validators.validate_statutory_provisions(
             "blah", "blah", "blah", "post", {"statutory-provisions": ["statutory-provision:321"]}),
             {'errors': ["New charges cannot use archived statutory provision 'statutory-provision:321'"]})
 
     @patch('application.charge_validators.register_utils.retrieve_curie')
     def test_validate_statutory_provisions_archived_put_exception(self, mock_curie_retrieve):
-        mock_curie_retrieve.side_effect = [{"text": "field", "end-date": "something"}, Exception("an exception")]
+        mock_curie_retrieve.side_effect = [{"provision": "section",
+                                            "statutory-instrument": "Act",
+                                            "year": "1900",
+                                            "end-date": "something"},
+                                           Exception("an exception")]
         self.assertEqual(charge_validators.validate_statutory_provisions(
             "local-land-charge", "blah", "blah", "put", {"statutory-provisions": ["statutory-provision:321"], "local-land-charge": "2"}),
             {'errors': ['an exception', "Could not retrieve record 'local-land-charge:2' for statutory provision validation"]})
 
     @patch('application.charge_validators.register_utils.retrieve_curie')
     def test_validate_statutory_provisions_archived_put_archived(self, mock_curie_retrieve):
-        mock_curie_retrieve.side_effect = [{"text": "field", "end-date": "something"},
+        mock_curie_retrieve.side_effect = [{"provision": "section",
+                                            "statutory-instrument": "Act",
+                                            "year": "1900", "end-date": "something"},
                                            {"statutory-provisions": ["statutory-provision:321"], "local-land-charge": "2"}]
         self.assertEqual(charge_validators.validate_statutory_provisions(
             "local-land-charge", "blah", "blah", "put", {"statutory-provisions": ["statutory-provision:123"], "local-land-charge": "2"}),
@@ -220,9 +248,14 @@ class TestValidateStatutoryProvisions(unittest.TestCase):
 
     @patch('application.charge_validators.register_utils.retrieve_curie')
     def test_validate_statutory_provisions_archived_put_ok(self, mock_curie_retrieve):
-        mock_curie_retrieve.side_effect = [{"text": "field", "end-date": "something"},
+        mock_curie_retrieve.side_effect = [{"provision": "section",
+                                            "statutory-instrument": "Act",
+                                            "year": "1900",
+                                            "end-date": "something"},
                                            {"statutory-provisions": ["statutory-provision:321"], "local-land-charge": "2"},
-                                           {"text": "field"}]
+                                           {"provision": "section",
+                                            "statutory-instrument": "Act",
+                                            "year": "1900"}]
         self.assertEqual(charge_validators.validate_statutory_provisions(
             "local-land-charge", "blah", "blah", "put", {"statutory-provisions": ["statutory-provision:321", "statutory-provision:123"],
                                                          "local-land-charge": "2"}),
