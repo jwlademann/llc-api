@@ -134,4 +134,5 @@ def geometry_search(function):
     else:
         app.logger.info("Geometry search completed for sub-domain '{}'".format(sub_domain))
         return_value = json.dumps(response.json(), sort_keys=True)
-    return (return_value, response.status_code, {"Content-Type": "application/json"})
+
+    return (return_value, response.status_code, {"Content-Type": "application/json", "Truncated": response.headers.get('Truncated')})
