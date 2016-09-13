@@ -18,10 +18,15 @@ Data is validated using [JSON Schema](http://json-schema.org) and [RAML](http://
 
 The API provides four interfaces to the four registers of the Local Land Charges Service. The API implements the [GDS Registers specification](https://openregister.github.io/specification), allowing users to create new records and update existing records.
 
+Environment Variables:
+
+To add environment variables that can be accessed by your application add the relevant entry to the docker-compose.yml file under the corresponding application, under the environment definitions. 
+
 ## Local Land Charges Register
 
-RAML documentation: http://192.168.249.38/local-land-charges/llc-api/raw/develop/application/static/schema/local-land-charge.json
-To create a new Local land charge record it must conform to the following Schema: http://192.168.249.38/local-land-charges/llc-api/raw/develop/application/static/schema/local-land-charge.raml
+RAML documentation: http://www.landregistryconcept.co.uk/api-docs/schemas/llc/local-land-charge.raml
+
+To create a new Local land charge record it must conform to the following Schema: http://www.landregistryconcept.co.uk/api-docs/schemas/llc/local-land-charge.json
 
 ### Usage
 
@@ -35,8 +40,9 @@ PUT     local-land-charge/record/<id-number>             -- update the record sp
 
 ## Statutory Provisions Register
 
-RAML documentation: http://192.168.249.38/local-land-charges/llc-api/raw/develop/application/static/schema/statutory-provision.json
-To create a new statutory provision record it must conform to the following Schema: http://192.168.249.38/local-land-charges/llc-api/raw/develop/application/static/schema/statutory-provision.raml
+RAML documentation: http://www.landregistryconcept.co.uk/api-docs/schemas/llc/statutory-provision.raml
+
+To create a new statutory provision record it must conform to the following Schema: http://www.landregistryconcept.co.uk/api-docs/schemas/llc/statutory-provision.json
 
 ### Usage
 
@@ -50,8 +56,9 @@ PUT     statutory-provision/record/<id-number>             -- update the record 
 
 ## Registering Authorities Register
 
-RAML documentation: http://192.168.249.38/local-land-charges/llc-api/raw/develop/application/static/schema/llc-registering-authority.json
-To create a new registering authority record it must conform to the following Schema: http://192.168.249.38/local-land-charges/llc-api/raw/develop/application/static/schema/llc-registering-authority.raml
+RAML documentation: http://www.landregistryconcept.co.uk/api-docs/schemas/llc/llc-registering-authority.raml
+
+To create a new registering authority record it must conform to the following Schema: http://www.landregistryconcept.co.uk/api-docs/schemas/llc/llc-registering-authority.json
 
 ### Usage
 
@@ -65,8 +72,9 @@ PUT     llc-registering-authority/record/<id-number>             -- update the r
 
 ## Further Information Location Register
 
-RAML documentation: http://192.168.249.38/local-land-charges/llc-api/raw/develop/application/static/schema/further-information-location.json
-To create a new further information location record it must conform to the following Schema: http://192.168.249.38/local-land-charges/llc-api/raw/develop/application/static/schema/further-information-location.raml
+RAML documentation: http://www.landregistryconcept.co.uk/api-docs/schemas/llc/further-information-location.raml
+
+To create a new further information location record it must conform to the following Schema: http://www.landregistryconcept.co.uk/api-docs/schemas/llc/further-information-location.json
 
 ### Usage
 
